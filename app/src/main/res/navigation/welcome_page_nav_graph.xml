@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/welcome_page_nav_graph"
+    app:startDestination="@id/WelcomeFragment">
+
+    <fragment
+        android:id="@+id/WelcomeFragment"
+        android:name="com.BarkMatch.welcomePageFragments.WelcomeFragment"
+        android:label="Welcome page">
+        <action
+            android:id="@+id/action_welcome_to_register"
+            app:destination="@id/fragment_register" />
+        <action
+            android:id="@+id/action_welcome_to_login"
+            app:destination="@id/fragment_login" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.BarkMatch.welcomePageFragments.RegisterFragment"
+        android:label="Register Form" />
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.BarkMatch.welcomePageFragments.LoginFragment"
+        android:label="Login Form" />
+</navigation>
