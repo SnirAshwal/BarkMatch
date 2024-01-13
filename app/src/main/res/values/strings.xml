@@ -61,4 +61,12 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="home_nav_title_feed">Feed</string>
+    <string name="home_nav_title_create_post">New Post</string>
+    <string name="home_nav_title_profile">Profile</string>
+    <string name="create_a_post">Create a post</string>
+    <string name="description_hint">* Description:</string>
+    <string name="phone_number_hint">* Phone number:</string>
+    <string name="create_btn_text">Create</string>
+    <string name="post_image_content_description">post-image</string>
 </resources>

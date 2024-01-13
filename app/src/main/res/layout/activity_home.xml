@@ -6,4 +6,32 @@
     android:layout_height="match_parent"
     tools:context=".HomeActivity">
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/navHostHome"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:layout_constraintBottom_toTopOf="@+id/homeActivityBottomNavigationView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navGraph="@navigation/home_page_nav_graph" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/homeActivityBottomNavigationView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        android:background="@drawable/bottom_navigation_top_border"
+        app:labelVisibilityMode="unlabeled"
+        app:itemIconTint="@drawable/navigation_view_colored"
+        app:itemTextColor="@drawable/navigation_view_colored"
+        app:itemActiveIndicatorStyle="@style/BottomNavigationCustomIndicatorStyle"
+        style="@style/BottomNavigationStyle"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
