@@ -50,6 +50,7 @@
             android:id="@+id/ivPostLike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -64,7 +65,7 @@
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivPostLike" />
+            app:layout_constraintTop_toBottomOf="@+id/tvPostAmountOfLikes" />
 
         <TextView
             android:id="@+id/tvPostDescription"
@@ -75,6 +76,26 @@
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvPostUsername" />
+
+        <TextView
+            android:id="@+id/tvPostAmountOfLikes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="10 Likes"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ivPostLike" />
+
+        <ImageView
+            android:id="@+id/imPostBreedInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="10dp"
+            android:contentDescription=""
+            app:layout_constraintEnd_toStartOf="@+id/tvPostBreed"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/info_32" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

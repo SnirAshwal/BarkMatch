@@ -13,6 +13,9 @@ interface PostDao {
     @Query("SELECT * FROM Post")
     fun getAll(): List<Post>
 
+    @Query("SELECT * FROM Post WHERE ownerId = :id")
+    fun getAllByUserId(id: Int): List<Post>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg posts: Post)
 

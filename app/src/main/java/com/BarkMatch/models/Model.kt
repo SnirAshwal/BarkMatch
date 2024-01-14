@@ -25,6 +25,16 @@ class Model private constructor() {
         }
     }
 
+    fun getAllPostsByUserId(userId: Int, callback: (List<Post>) -> Unit) {
+        executor.execute {
+            val posts = database.postDao().getAllByUserId(userId)
+            mainHandler.post {
+                // Main Thread
+                callback(posts)
+            }
+        }
+    }
+
     fun addPost(post: Post, callback: () -> Unit) {
         executor.execute {
             database.postDao().insert(post)

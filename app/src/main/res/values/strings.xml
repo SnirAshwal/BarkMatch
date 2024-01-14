@@ -14,10 +14,10 @@
     <string name="icon">icon</string>
     <string name="login_first_name_hint">* First name</string>
     <string name="login_last_name_hint">* Last name</string>
-    <string name="username_hint">* Username:</string>
-    <string name="last_name_hint">* Last name:</string>
-    <string name="first_name_hint">* First name:</string>
-    <string name="password_hint">* Password:</string>
+    <string name="username_hint">* Username</string>
+    <string name="last_name_hint">* Last name</string>
+    <string name="first_name_hint">* First name</string>
+    <string name="password_hint">* Password</string>
     <string name="title_activity_home">HomeActivity</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -65,8 +65,25 @@
     <string name="home_nav_title_create_post">New Post</string>
     <string name="home_nav_title_profile">Profile</string>
     <string name="create_a_post">Create a post</string>
-    <string name="description_hint">* Description:</string>
-    <string name="phone_number_hint">* Phone number:</string>
+    <string name="description_hint">* Description</string>
+    <string name="phone_number_hint">* Phone number</string>
     <string name="create_btn_text">Create</string>
     <string name="post_image_content_description">post-image</string>
+    <string name="breed_image_content_description">breed-image</string>
+    <string name="profile_image_content_description">profile_image</string>
+    <string name="profile_posts_text">Posts</string>
+    <string name="profile_num_of_posts_text">0</string>
+    <string name="profile_user_description_text">User description</string>
+    <string name="profile_edit_profile_btn_text">Edit Profile</string>
+    <string name="edit_profile_btn_text">Save</string>
+    <string name="logout_btn_text">Sign Out</string>
+    <string name="settings_">Settings</string>
+    <string name="breed_info_text_name">Name:</string>
+    <string name="breed_info_text_breed_group">Breed group:</string>
+    <string name="breed_info_text_temperament">Temperament:</string>
+    <string name="breed_info_text_bred_for">Bred for:</string>
+    <string name="breed_info_text_origin">Origin:</string>
+    <string name="breed_info_text_life_span">Life span:</string>
+    <string name="breed_info_text_height">Height:</string>
+    <string name="breed_info_text_weight">Weight:</string>
 </resources>

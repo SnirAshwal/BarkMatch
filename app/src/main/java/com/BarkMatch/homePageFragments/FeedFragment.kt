@@ -8,7 +8,7 @@ import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.BarkMatch.R
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.BarkMatch.adapters.FeedRecyclerAdapter
 import com.BarkMatch.databinding.FragmentFeedBinding
 import com.BarkMatch.models.Model
@@ -20,6 +20,7 @@ class FeedFragment : Fragment() {
     private var posts: List<Post>? = null
     private var adapter: FeedRecyclerAdapter? = null
     private var progressBar: ProgressBar? = null
+    private var swipeRefreshLayoutFeed: SwipeRefreshLayout? = null
 
     private var _binding: FragmentFeedBinding? = null
     private val binding get() = _binding!!
@@ -41,10 +42,19 @@ class FeedFragment : Fragment() {
         feedPostsView = binding.rvFeedPosts
         feedPostsView?.setHasFixedSize(true)
         feedPostsView?.layoutManager = LinearLayoutManager(context)
-        adapter = FeedRecyclerAdapter(posts)
+        adapter = context?.let { FeedRecyclerAdapter(posts, it) }
         feedPostsView?.adapter = adapter
 
-        return view;
+        swipeRefreshLayoutFeed = binding.srlFeed
+        swipeRefreshLayoutFeed?.setOnRefreshListener {
+            Model.instance.getAllPosts { posts ->
+                getPosts(posts)
+            }
+
+            swipeRefreshLayoutFeed?.isRefreshing = false
+        }
+
+        return view
     }
 
     override fun onResume() {
