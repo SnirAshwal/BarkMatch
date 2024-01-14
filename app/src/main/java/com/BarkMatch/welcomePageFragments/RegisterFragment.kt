@@ -15,7 +15,6 @@ import androidx.navigation.Navigation.findNavController
 import com.BarkMatch.HomeActivity
 import com.BarkMatch.R
 
-
 class RegisterFragment : Fragment() {
 
     private val pickImageLauncher =
@@ -24,11 +23,12 @@ class RegisterFragment : Fragment() {
         }
 
     private var imageView: ImageView? = null
-    private var edFirstName: EditText? = null
-    private var edLastName: EditText? = null
-    private var edUsername: EditText? = null
-    private var edPassword: EditText? = null
-    private var edDescription: EditText? = null
+    private var etFirstName: EditText? = null
+    private var etLastName: EditText? = null
+    private var etUsername: EditText? = null
+    private var etPassword: EditText? = null
+    private var etDescription: EditText? = null
+    private var etPhoneNumber: EditText? = null
     private var registerBtn: Button? = null
 
     override fun onCreateView(
@@ -47,11 +47,12 @@ class RegisterFragment : Fragment() {
             openFileChooser()
         }
 
-        edFirstName = view.findViewById(R.id.etRegisterFirstName)
-        edLastName = view.findViewById(R.id.etRegisterLastName)
-        edUsername = view.findViewById(R.id.etRegisterUsername)
-        edPassword = view.findViewById(R.id.etRegisterPassword)
-        edDescription = view.findViewById(R.id.etRegisterDescription)
+        etFirstName = view.findViewById(R.id.etRegisterFirstName)
+        etLastName = view.findViewById(R.id.etRegisterLastName)
+        etUsername = view.findViewById(R.id.etRegisterUsername)
+        etPassword = view.findViewById(R.id.etRegisterPassword)
+        etDescription = view.findViewById(R.id.etRegisterDescription)
+        etPhoneNumber = view.findViewById(R.id.etRegisterPhoneNumber)
 
         registerBtn = view.findViewById(R.id.btnRegister)
         registerBtn?.setOnClickListener {

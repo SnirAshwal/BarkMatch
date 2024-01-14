@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home_page_nav_graph"
+    app:startDestination="@id/FeedFragment">
+
+    <fragment
+        android:id="@+id/FeedFragment"
+        android:name="com.BarkMatch.homePageFragments.FeedFragment"
+        android:label="Feed page">
+        <action
+            android:id="@+id/action_feed_to_createPost"
+            app:destination="@id/fragment_create_post" />
+        <action
+            android:id="@+id/action_feed_to_profile"
+            app:destination="@id/fragment_profile" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/CreatePostFragment"
+        android:name="com.BarkMatch.homePageFragments.CreatePostFragment"
+        android:label="Create post form" >
+        <action
+            android:id="@+id/action_createPost_to_feed"
+            app:destination="@id/fragment_feed" />
+        <action
+        android:id="@+id/action_createPost_to_profile"
+        app:destination="@id/fragment_profile" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ProfileFragment"
+        android:name="com.BarkMatch.homePageFragments.ProfileFragment"
+        android:label="Profile page" >
+        <action
+        android:id="@+id/action_profile_to_feed"
+        app:destination="@id/fragment_feed" />
+        <action
+            android:id="@+id/action_profile_to_createPost"
+            app:destination="@id/fragment_create_post" />
+    </fragment>
+</navigation>

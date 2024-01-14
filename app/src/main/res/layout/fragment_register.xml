@@ -23,7 +23,7 @@
         android:id="@+id/tvLogoTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/logo_title"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -46,23 +46,21 @@
 
     <ImageView
         android:id="@+id/ivRegisterProfileImg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150sp"
+        android:layout_height="150sp"
         android:layout_centerInParent="true"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
+        android:background="@drawable/rounded_image_bg"
+        android:contentDescription="@string/default_profile_img_description"
         android:maxWidth="150sp"
         android:maxHeight="150sp"
-        android:minHeight="150sp"
-        android:minWidth="150sp"
         android:padding="20sp"
-        android:background="@drawable/rounded_image_bg"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_profile_image"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvLogoSubtitle"
-        android:src="@drawable/default_profile_image"
-        android:contentDescription="@string/default_profile_img_description" />
+        app:layout_constraintTop_toBottomOf="@+id/tvLogoSubtitle" />
 
     <EditText
         android:id="@+id/etRegisterFirstName"
@@ -184,7 +182,7 @@
         android:autofillHints=""
         android:background="@drawable/rounded_edittext_bg"
         android:ems="10"
-        android:hint="@string/username_hint"
+        android:hint="@string/description_hint"
         android:inputType="text"
         android:padding="10dp"
         android:text=""
@@ -204,18 +202,46 @@
         app:layout_constraintTop_toTopOf="@+id/etRegisterDescription"
         android:contentDescription="@string/icon" />
 
+    <EditText
+        android:id="@+id/etRegisterPhoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="20dp"
+        android:autofillHints=""
+        android:background="@drawable/rounded_edittext_bg"
+        android:ems="10"
+        android:hint="@string/phone_number_hint"
+        android:inputType="phone"
+        android:padding="10dp"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etRegisterDescription" />
+
+    <ImageView
+        android:id="@+id/ivRegisterPhoneNumberIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/paw_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/etRegisterPhoneNumber"
+        app:layout_constraintEnd_toStartOf="@+id/etRegisterPhoneNumber"
+        app:layout_constraintTop_toTopOf="@+id/etRegisterPhoneNumber"
+        android:contentDescription="@string/icon" />
+
     <Button
         android:id="@+id/btnRegister"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="15dp"
         android:backgroundTint="@color/red"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
         android:text="@string/register_btn_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etRegisterDescription"
+        app:layout_constraintTop_toBottomOf="@+id/etRegisterPhoneNumber"
         app:layout_constraintWidth_max="320sp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditProfileActivity">
+
+    <ImageButton
+        android:id="@+id/btnEditProfileBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/back_arrow_description"
+        android:src="@drawable/arrow_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivEditProfileImg"
+        android:layout_width="150sp"
+        android:layout_height="150sp"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="100dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/rounded_image_bg"
+        android:contentDescription="@string/default_profile_img_description"
+        android:maxWidth="150sp"
+        android:maxHeight="150sp"
+        android:padding="20sp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_profile_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/etEditProfileFirstName"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="20dp"
+        android:autofillHints=""
+        android:background="@drawable/rounded_edittext_bg"
+        android:ems="10"
+        android:hint="@string/first_name_hint"
+        android:inputType="text"
+        android:padding="10dp"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivEditProfileImg" />
+
+    <ImageView
+        android:id="@+id/ivEditProfileFirstNameIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/user_icon_small"
+        app:layout_constraintBottom_toBottomOf="@+id/etEditProfileFirstName"
+        app:layout_constraintEnd_toStartOf="@+id/etEditProfileFirstName"
+        app:layout_constraintTop_toTopOf="@+id/etEditProfileFirstName"
+        android:contentDescription="@string/icon" />
+
+    <EditText
+        android:id="@+id/etEditProfileLastName"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="20dp"
+        android:autofillHints=""
+        android:background="@drawable/rounded_edittext_bg"
+        android:ems="10"
+        android:hint="@string/last_name_hint"
+        android:inputType="text"
+        android:padding="10dp"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etEditProfileFirstName" />
+
+    <ImageView
+        android:id="@+id/ivEditProfileUsernameIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/user_icon_small"
+        app:layout_constraintBottom_toBottomOf="@+id/etEditProfileLastName"
+        app:layout_constraintEnd_toStartOf="@+id/etEditProfileLastName"
+        app:layout_constraintTop_toTopOf="@+id/etEditProfileLastName"
+        android:contentDescription="@string/icon" />
+
+    <EditText
+        android:id="@+id/etEditProfileDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="20dp"
+        android:autofillHints=""
+        android:background="@drawable/rounded_edittext_bg"
+        android:ems="10"
+        android:hint="@string/description_hint"
+        android:inputType="text"
+        android:padding="10dp"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etEditProfileLastName" />
+
+    <ImageView
+        android:id="@+id/ivEditProfileDescriptionIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/paw_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/etEditProfileDescription"
+        app:layout_constraintEnd_toStartOf="@+id/etEditProfileDescription"
+        app:layout_constraintTop_toTopOf="@+id/etEditProfileDescription"
+        android:contentDescription="@string/icon" />
+
+    <EditText
+        android:id="@+id/etEditProfilePhoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="20dp"
+        android:autofillHints=""
+        android:background="@drawable/rounded_edittext_bg"
+        android:ems="10"
+        android:hint="@string/phone_number_hint"
+        android:inputType="phone"
+        android:padding="10dp"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etEditProfileDescription" />
+
+    <ImageView
+        android:id="@+id/ivEditProfilePhoneNumberIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/paw_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/etEditProfilePhoneNumber"
+        app:layout_constraintEnd_toStartOf="@+id/etEditProfilePhoneNumber"
+        app:layout_constraintTop_toTopOf="@+id/etEditProfilePhoneNumber"
+        android:contentDescription="@string/icon" />
+
+    <Button
+        android:id="@+id/btnEditProfile"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:backgroundTint="@color/red"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:text="@string/edit_profile_btn_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etEditProfilePhoneNumber"
+        app:layout_constraintWidth_max="320sp" />
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="#fff"
+        android:text="@string/logout_btn_text"
+        android:textColor="#000000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="#000000"
+        app:strokeWidth="2sp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
