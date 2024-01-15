@@ -7,7 +7,7 @@ import com.BarkMatch.base.MyApplication
 import com.BarkMatch.models.Post
 
 
-@Database(entities = [Post::class], version = 2)
+@Database(entities = [Post::class], version = 1)
 abstract class AppLocalDbRepository : RoomDatabase() {
     abstract fun postDao(): PostDao
 }

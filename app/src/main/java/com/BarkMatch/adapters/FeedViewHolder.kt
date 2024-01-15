@@ -24,10 +24,8 @@ class FeedViewHolder(
 
     private var tvPostDescription: TextView? = null
     private var ivPostImage: ImageView? = null
-    private var ivPostLike: ImageView? = null
     private var imPostBreedInfo: ImageView? = null
     private var tvPostBreed: TextView? = null
-    private var tvPostAmountOfLikes: TextView? = null
     private var tvPostUsername: TextView? = null
 
     var post: Post? = null
@@ -35,10 +33,8 @@ class FeedViewHolder(
     init {
         tvPostDescription = itemView.findViewById(R.id.tvPostDescription)
         ivPostImage = itemView.findViewById(R.id.ivPostImage)
-        ivPostLike = itemView.findViewById(R.id.ivPostLike)
         imPostBreedInfo = itemView.findViewById(R.id.imPostBreedInfo)
         tvPostBreed = itemView.findViewById(R.id.tvPostBreed)
-        tvPostAmountOfLikes = itemView.findViewById(R.id.tvPostAmountOfLikes)
         tvPostUsername = itemView.findViewById(R.id.tvPostUsername)
     }
 
@@ -46,22 +42,15 @@ class FeedViewHolder(
         this.post = post
         tvPostDescription?.text = post?.description
         tvPostBreed?.text = post?.breedName
-        tvPostAmountOfLikes?.text = "10" + " Likes"
         tvPostUsername?.text = "username"
 
-        val imageFile = File(itemView.context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "dog_post_img.jpg")
-
-        // Loading post img
-        Picasso.get()
-            .load(R.drawable.dog_post_img)
-            .transform(RoundedCornersTransformation(50,0)) // Make the image corners round
-            .into(ivPostImage)
-
-        // Loading liked icon
-        if (post?.isLikedByUser == true)
-            ivPostLike?.setImageResource(R.drawable.heart_full_32)
-        else
-            ivPostLike?.setImageResource(R.drawable.heart_32)
+        if (post?.image?.isEmpty() == false) {
+            // Loading post img
+            Picasso.get()
+                .load(post.image)
+                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+                .into(ivPostImage)
+        }
 
         imPostBreedInfo?.setOnClickListener {
             val bundle = Bundle()

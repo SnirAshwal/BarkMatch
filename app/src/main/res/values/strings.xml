@@ -14,7 +14,7 @@
     <string name="icon">icon</string>
     <string name="login_first_name_hint">* First name</string>
     <string name="login_last_name_hint">* Last name</string>
-    <string name="username_hint">* Username</string>
+    <string name="email_hint">* Email</string>
     <string name="last_name_hint">* Last name</string>
     <string name="first_name_hint">* First name</string>
     <string name="password_hint">* Password</string>
