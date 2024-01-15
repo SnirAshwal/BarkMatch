@@ -3,10 +3,8 @@ package com.BarkMatch.homePageFragments
 import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
@@ -36,19 +34,18 @@ import java.io.IOException
 
 class CreatePostFragment : Fragment() {
 
-    private var postImageFileName: String? = null
     private var apiService: ApiService? = null
     private var imageView: ImageView? = null
     private var etDescription: EditText? = null
     private var spinnerBreed: Spinner? = null
     private var createPostBtn: Button? = null
+    private var selectedImageUri: Uri? = null
+    private var dogsInfo: List<DogInfo>? = null
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             imageView?.setImageURI(uri)
-            postImageFileName = uri?.let {
-                getFileName(requireContext().contentResolver, it)
-            }
+            selectedImageUri = uri
         }
 
     override fun onCreateView(
@@ -75,12 +72,12 @@ class CreatePostFragment : Fragment() {
                     response: Response<List<DogInfo>>
                 ) {
                     if (response.isSuccessful) {
-                        val dogsInfo: List<DogInfo>? = response.body()
+                        dogsInfo = response.body()
                         if (dogsInfo != null) {
                             val adapter = ArrayAdapter(
                                 requireContext(),
                                 android.R.layout.simple_spinner_item,
-                                dogsInfo.map { it.name }
+                                dogsInfo!!.map { it.name }
                             )
                             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                             spinnerBreed?.adapter = adapter
@@ -100,34 +97,19 @@ class CreatePostFragment : Fragment() {
         createPostBtn = view.findViewById(R.id.btnCreatePost)
         createPostBtn?.setOnClickListener {
             // TODO: create post logic
+            val breedId =
+                dogsInfo?.filter { info -> info.name.equals(spinnerBreed?.selectedItem.toString()) }
+                    ?.get(0)?.id
 
-//            val bitmap: Bitmap =
-//                BitmapFactory.decodeResource(resources, R.id.ivCreatePostImg)
-//            val imageFile =
-//                postImageFileName?.let { it1 ->
-//                    File(context?.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-//                        it1
-//                    )
-//                }
-//
-//            if (imageFile != null) {
-//                saveImageToFile(imageFile, bitmap)
-//            }
+            val post = Post(
+                etDescription?.text.toString(),
+                breedId ?: 0,
+                spinnerBreed?.selectedItem.toString(),
+                ""
+            )
 
-            val imageFile = ""
-            val post = imageFile?.let { it1 ->
-                Post(
-                    etDescription?.text.toString(),
-                    1,
-                    false,
-                    10,
-                    "Pincher",
-                    "it1.absolutePath"
-                )
-            }
-
-            if (post != null) {
-                Model.instance.addPost(post) {
+            selectedImageUri?.let { imageUri ->
+                Model.instance.createPost(post, imageUri) {
                     Navigation.findNavController(it).popBackStack(R.id.FeedFragment, false)
                 }
             }
@@ -138,41 +120,5 @@ class CreatePostFragment : Fragment() {
 
     private fun openFileChooser() {
         pickImageLauncher.launch("image/*")
-    }
-
-    private fun saveImageToFile(file: File, bitmap: Bitmap) {
-        try {
-            // Create a FileOutputStream to write the bitmap to the file
-            val outputStream = FileOutputStream(file)
-
-            // Use the compress method to save the bitmap to the FileOutputStream
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-
-            // Flush and close the stream
-            outputStream.flush()
-            outputStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-    }
-
-    @SuppressLint("Range")
-    private fun getFileName(contentResolver: ContentResolver, uri: Uri): String? {
-        var fileName: String? = null
-
-        // Query the content resolver to get the file name
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                val displayName =
-                    cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                fileName = if (displayName != null) {
-                    displayName
-                } else {
-                    null // Handle the case where DISPLAY_NAME is null
-                }
-            }
-        }
-
-        return fileName
     }
 }

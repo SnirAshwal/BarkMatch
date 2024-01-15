@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "227957205384",
+    "project_id": "barkmatch-8a7fc",
+    "storage_bucket": "barkmatch-8a7fc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227957205384:android:fb8e09db77a93de32db23d",
+        "android_client_info": {
+          "package_name": "com.BarkMatch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVELQvRmBXlOpoqhnyd9E3wYq4cV7CK0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

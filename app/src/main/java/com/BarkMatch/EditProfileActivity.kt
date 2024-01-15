@@ -1,11 +1,11 @@
 package com.BarkMatch
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import com.BarkMatch.models.Model
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -39,13 +39,7 @@ class EditProfileActivity : AppCompatActivity() {
         }
 
         btnLogout?.setOnClickListener {
-            // TODO: write logout functionality
-
-            // move to welcome page
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
+            Model.instance.logoutUser(this)
         }
 
         val extras = intent.extras
