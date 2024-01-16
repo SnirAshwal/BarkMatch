@@ -55,7 +55,6 @@
         android:contentDescription="@string/default_profile_img_description"
         android:maxWidth="150sp"
         android:maxHeight="150sp"
-        android:padding="20sp"
         android:scaleType="centerCrop"
         android:src="@drawable/default_profile_image"
         app:layout_constraintEnd_toEndOf="parent"

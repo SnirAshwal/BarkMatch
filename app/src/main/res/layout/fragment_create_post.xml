@@ -31,7 +31,6 @@
         android:contentDescription="@string/default_profile_img_description"
         android:maxWidth="250sp"
         android:maxHeight="250sp"
-        android:padding="20sp"
         android:scaleType="centerCrop"
         android:src="@android:drawable/ic_menu_gallery"
         app:layout_constraintEnd_toEndOf="parent"

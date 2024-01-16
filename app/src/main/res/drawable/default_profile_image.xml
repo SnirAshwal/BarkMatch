@@ -1,6 +1,11 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:drawable="@drawable/user_icon"
-        android:gravity="center"
-        />
+        android:bottom="20dp"
+        android:left="20dp"
+        android:right="20dp"
+        android:top="20dp">
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/user_icon" />
+    </item>
 </layer-list>
