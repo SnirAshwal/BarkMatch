@@ -20,6 +20,8 @@ import com.BarkMatch.api.DogInfo
 import com.BarkMatch.api.RetrofitClient
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
+import com.BarkMatch.utils.SnackbarUtils
+import com.BarkMatch.utils.Validations
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import retrofit2.Call
@@ -93,7 +95,23 @@ class CreatePostFragment : Fragment() {
 
         createPostBtn = view.findViewById(R.id.btnCreatePost)
         createPostBtn?.setOnClickListener {
-            // TODO: create post logic
+            // Validation
+            if (selectedImageUri == null) {
+                SnackbarUtils.showSnackbar(view, "Image is required")
+                return@setOnClickListener
+            }
+
+            if (Validations.isFieldEmpty(etDescription?.text.toString())) {
+                SnackbarUtils.showSnackbar(view, "Description is required")
+                return@setOnClickListener
+            }
+
+            if (Validations.isFieldEmpty(spinnerBreed?.selectedItem.toString())) {
+                SnackbarUtils.showSnackbar(view, "Breed is required")
+                return@setOnClickListener
+            }
+
+            // Creating the post
             val breedId =
                 dogsInfo?.filter { info -> info.name.equals(spinnerBreed?.selectedItem.toString()) }
                     ?.get(0)?.id
