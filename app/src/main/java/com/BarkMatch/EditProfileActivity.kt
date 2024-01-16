@@ -46,12 +46,12 @@ class EditProfileActivity : AppCompatActivity() {
         if (extras != null) {
             val value = extras.getString("userId")
             if (value != null) {
-                initUserDetails(value.toInt())
+                initUserDetails(value)
             }
         }
     }
 
-    fun initUserDetails(userId: Int) {
+    fun initUserDetails(userId: String) {
         // TODO: write init user details functionality
 
         etEditProfileFirstName?.setText("test")

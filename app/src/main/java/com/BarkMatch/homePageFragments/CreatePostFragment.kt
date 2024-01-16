@@ -1,11 +1,7 @@
 package com.BarkMatch.homePageFragments
 
-import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,13 +20,11 @@ import com.BarkMatch.api.DogInfo
 import com.BarkMatch.api.RetrofitClient
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
+import com.squareup.picasso.Picasso
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-
 
 class CreatePostFragment : Fragment() {
 
@@ -44,7 +38,10 @@ class CreatePostFragment : Fragment() {
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            imageView?.setImageURI(uri)
+            Picasso.get()
+                .load(uri)
+                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+                .into(imageView)
             selectedImageUri = uri
         }
 
@@ -104,8 +101,7 @@ class CreatePostFragment : Fragment() {
             val post = Post(
                 etDescription?.text.toString(),
                 breedId ?: 0,
-                spinnerBreed?.selectedItem.toString(),
-                ""
+                spinnerBreed?.selectedItem.toString()
             )
 
             selectedImageUri?.let { imageUri ->

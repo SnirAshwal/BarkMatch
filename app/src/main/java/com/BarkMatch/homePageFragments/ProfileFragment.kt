@@ -10,7 +10,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.BarkMatch.EditProfileActivity
@@ -18,18 +17,19 @@ import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter
 import com.BarkMatch.databinding.FragmentProfileBinding
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
-
+import com.google.firebase.auth.FirebaseAuth
 
 class ProfileFragment : Fragment() {
 
+    private val auth = FirebaseAuth.getInstance()
     private var profileFeedPostsView: RecyclerView? = null
     private var posts: List<Post>? = null
     private var adapter: ProfileFeedRecyclerAdapter? = null
     private var progressBar: ProgressBar? = null
     private var editProfileBtn: Button? = null
-    private var tvUsername:TextView? = null
-    private var tvDescription:TextView? = null
-    private var tvPosts:TextView? = null
+    private var tvUsername: TextView? = null
+    private var tvDescription: TextView? = null
+    private var tvPosts: TextView? = null
     private var swipeRefreshLayoutFeed: SwipeRefreshLayout? = null
 
     private var _binding: FragmentProfileBinding? = null
@@ -45,8 +45,7 @@ class ProfileFragment : Fragment() {
         progressBar = binding.pbProfileFeed
         progressBar?.visibility = View.VISIBLE
 
-        // TODO: need to pass the user ID in here
-        val userId = 1;
+        val userId = auth.currentUser?.uid ?: ""
         Model.instance.getAllPostsByUserId(userId) { posts ->
             getPosts(posts)
         }
@@ -60,7 +59,7 @@ class ProfileFragment : Fragment() {
         editProfileBtn = binding.btnEditProfile
         editProfileBtn?.setOnClickListener {
             val bundle = Bundle()
-            bundle.putString("userId", userId.toString())
+            bundle.putString("userId", userId)
             val intent = Intent(activity, EditProfileActivity::class.java)
             intent.putExtras(bundle)
             startActivity(intent)
@@ -113,7 +112,7 @@ class ProfileFragment : Fragment() {
         progressBar?.visibility = View.GONE
     }
 
-    fun initUserDetails(userId: Int) {
+    private fun initUserDetails(userId: String) {
         // TODO: write init user details functionality
 
         tvUsername?.text = "Snir Ashwal"

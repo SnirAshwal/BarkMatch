@@ -1,14 +1,12 @@
 package com.BarkMatch.models
 
 import android.app.Activity
-import android.content.Context
 import android.net.Uri
 import android.os.Looper
 import android.view.View
 import androidx.core.os.HandlerCompat
 import androidx.fragment.app.FragmentActivity
 import com.BarkMatch.dao.AppLocalDatabase
-import java.net.URI
 import java.util.concurrent.Executors
 
 class Model private constructor() {
@@ -29,21 +27,15 @@ class Model private constructor() {
 
     fun registerUser(
         context: FragmentActivity, view: View,
-        email: String, password: String,
-        firstName: String, lastName: String,
-        profileImage: String, phoneNumber: String,
-        description: String
+        email: String, password: String, newUser: User, imageUri: Uri?
     ) {
         firebaseModel.registerUser(
             context,
             view,
             email,
             password,
-            firstName,
-            lastName,
-            profileImage,
-            phoneNumber,
-            description
+            newUser,
+            imageUri
         )
     }
 
@@ -51,19 +43,19 @@ class Model private constructor() {
         firebaseModel.logoutUser(context)
     }
 
+    fun isUserWithEmailExists(email: String, callback: (Boolean) -> Unit) {
+        firebaseModel.isUserWithEmailExists(email) { isUserExists ->
+            callback(isUserExists)
+        }
+    }
+
+
     fun getAllPosts(callback: (List<Post>) -> Unit) {
         firebaseModel.getAllPosts(callback)
     }
 
-    fun getAllPostsByUserId(userId: Int, callback: (List<Post>) -> Unit) {
-        // firebaseModel.getAllPostsByUserId(userId, callback)
-        executor.execute {
-            val posts = database.postDao().getAllByUserId(userId)
-            mainHandler.post {
-                // Main Thread
-                callback(posts)
-            }
-        }
+    fun getAllPostsByUserId(userId: String, callback: (List<Post>) -> Unit) {
+        firebaseModel.getAllPostsByUserId(userId, callback)
     }
 
     fun createPost(post: Post, imageUri: Uri, callback: () -> Unit) {

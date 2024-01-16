@@ -3,7 +3,6 @@ package com.BarkMatch.adapters
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -13,7 +12,6 @@ import com.BarkMatch.R
 import com.BarkMatch.models.Post
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
-import java.io.File
 
 class FeedViewHolder(
     itemView: View,

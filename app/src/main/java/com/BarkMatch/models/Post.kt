@@ -16,9 +16,8 @@ data class Post(
     constructor(
         description: String,
         breedId: Int,
-        breedName: String,
-        image: String
-    ) : this("", description, "", breedId, breedName, image)
+        breedName: String
+    ) : this("", description, "", breedId, breedName, "")
 
     companion object {
 

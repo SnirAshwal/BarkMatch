@@ -1,6 +1,6 @@
 package com.BarkMatch.welcomePageFragments
 
-import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,18 +12,15 @@ import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation.findNavController
-import com.BarkMatch.HomeActivity
 import com.BarkMatch.R
 import com.BarkMatch.models.Model
+import com.BarkMatch.models.User
 import com.BarkMatch.utils.SnackbarUtils
 import com.BarkMatch.utils.Validations
+import com.squareup.picasso.Picasso
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
 class RegisterFragment : Fragment() {
-
-    private val pickImageLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            imageView?.setImageURI(uri)
-        }
 
     private var imageView: ImageView? = null
     private var etFirstName: EditText? = null
@@ -33,6 +30,16 @@ class RegisterFragment : Fragment() {
     private var etDescription: EditText? = null
     private var etPhoneNumber: EditText? = null
     private var registerBtn: Button? = null
+    private var selectedImageUri: Uri? = null
+
+    private val pickImageLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            Picasso.get()
+                .load(uri)
+                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+                .into(imageView)
+            selectedImageUri = uri
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -93,19 +100,30 @@ class RegisterFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Register
-            activity?.let { context ->
-                Model.instance.registerUser(
-                    context,
-                    view,
-                    etEmail?.text.toString(),
-                    etPassword?.text.toString(),
-                    etFirstName?.text.toString(),
-                    etLastName?.text.toString(),
-                    "",
-                    etPhoneNumber?.text.toString(),
-                    etDescription?.text.toString()
-                )
+            Model.instance.isUserWithEmailExists(etEmail?.text.toString()) { userExists ->
+                if (userExists) {
+                    SnackbarUtils.showSnackbar(view, "User with this email already exists")
+                } else {
+                    val newUser = User(
+                        etFirstName?.text.toString(),
+                        etLastName?.text.toString(),
+                        etPhoneNumber?.text.toString(),
+                        etDescription?.text.toString(),
+                        etEmail?.text.toString()
+                    )
+
+                    // Register
+                    activity?.let { context ->
+                        Model.instance.registerUser(
+                            context,
+                            view,
+                            etEmail?.text.toString(),
+                            etPassword?.text.toString(),
+                            newUser,
+                            selectedImageUri
+                        )
+                    }
+                }
             }
         }
 

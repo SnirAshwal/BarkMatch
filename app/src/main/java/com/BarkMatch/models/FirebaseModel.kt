@@ -11,9 +11,6 @@ import com.BarkMatch.utils.SnackbarUtils
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
@@ -21,7 +18,6 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
-import java.net.URI
 import java.util.concurrent.Executors
 
 class FirebaseModel {
@@ -65,10 +61,10 @@ class FirebaseModel {
     fun registerUser(
         context: Context,
         view: View,
-        email: String, password: String,
-        firstName: String, lastName: String,
-        profileImage: String, phoneNumber: String,
-        description: String
+        email: String,
+        password: String,
+        newUser: User,
+        imageUri: Uri?
     ) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task: Task<AuthResult?> ->
@@ -80,11 +76,8 @@ class FirebaseModel {
                     saveUserDetailsToFireStore(
                         context,
                         userId,
-                        firstName,
-                        lastName,
-                        profileImage,
-                        phoneNumber,
-                        description
+                        newUser,
+                        imageUri
                     )
                 } else {
                     SnackbarUtils.showSnackbar(view, "Registration failed")
@@ -93,31 +86,59 @@ class FirebaseModel {
     }
 
     private fun saveUserDetailsToFireStore(
-        context: Context, userId: String?, firstName: String, lastName: String,
-        profileImage: String, phoneNumber: String, description: String
+        context: Context,
+        userId: String?,
+        newUser: User,
+        imageUri: Uri?
     ) {
         if (userId != null) {
-            val db = FirebaseFirestore.getInstance()
-            val user = User(
-                id = userId,
-                firstName = firstName,
-                lastName = lastName,
-                profileImage = profileImage,
-                phoneNumber = phoneNumber,
-                description = description
-            )
-
-            db.collection(USERS_COLLECTION_PATH).document(userId).set(user)
-                .addOnSuccessListener {
-                    // User data saved successfully - moving to feed
-                    val intent = Intent(context, HomeActivity::class.java)
-                    context.startActivity(intent)
-                    (context as Activity).finish()
+            if (imageUri != null) {
+                val timestamp = System.currentTimeMillis()
+                uploadImage(imageUri, "images/$userId/profile/profile_$timestamp.jpg") { imageUrl ->
+                    if (imageUrl != null) {
+                        newUser.profileImage = imageUrl
+                        saveUserInDB(context, userId, newUser)
+                    } else {
+                        // Handle the case where image upload failed
+                        println("Image upload failed")
+                    }
                 }
-                .addOnFailureListener { e ->
-                    // Handle failure
-                }
+            } else {
+                saveUserInDB(context, userId, newUser)
+            }
         }
+    }
+
+    private fun saveUserInDB(
+        context: Context,
+        userId: String,
+        newUser: User
+    ) {
+        db.collection(USERS_COLLECTION_PATH).document(userId).set(newUser)
+            .addOnSuccessListener {
+                // User data saved successfully - moving to feed
+                val intent = Intent(context, HomeActivity::class.java)
+                context.startActivity(intent)
+                (context as Activity).finish()
+            }
+            .addOnFailureListener { e ->
+                // Handle failure
+            }
+    }
+
+    fun isUserWithEmailExists(email: String, callback: (Boolean) -> Unit) {
+        db.collection("users")
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                // Check if any documents match the query
+                val isUserExists = !querySnapshot.isEmpty
+                callback(isUserExists)
+            }
+            .addOnFailureListener { e ->
+                // Handle the exception or error during the operation
+                callback(false)
+            }
     }
 
     fun logoutUser(context: Context) {
@@ -140,45 +161,41 @@ class FirebaseModel {
                     }
                     callback(posts)
                 }
-
                 false -> callback(listOf())
             }
         }
     }
 
     fun getAllPostsByUserId(userId: String, callback: (List<Post>) -> Unit) {
-//        db.collection(STUDENTS_COLLECTION_PATH).get().addOnCompleteListener {
-//            when (it.isSuccessful) {
-//                true -> {
-//                    val students: MutableList<Student> = mutableListOf()
-//                    for (json in it.result) {
-//                        val student = Student.fromJSON(json.data)
-//                        students.add(student)
-//                    }
-//                    callback(students)
-//                }
-//                false -> callback(listOf())
-//            }
-//        }
+        db.collection(POSTS_COLLECTION_PATH).whereEqualTo("ownerId", userId).get().addOnCompleteListener {
+            when (it.isSuccessful) {
+                true -> {
+                    val posts: MutableList<Post> = mutableListOf()
+                    for (json in it.result) {
+                        val post = Post.fromJSON(json.data)
+                        posts.add(post)
+                    }
+                    callback(posts)
+                }
+                false -> callback(listOf())
+            }
+        }
     }
 
     fun createPost(post: Post, imageUri: Uri, callback: () -> Unit) {
         val userId = auth.currentUser?.uid
         val timestamp = System.currentTimeMillis()
-        val imageRef = storageRef?.child("images/$userId/post_$timestamp.jpg")
 
-        // Upload file to Firebase Storage
-        imageRef?.putFile(imageUri)
-            ?.addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { uri ->
-                    post.ownerId = auth.currentUser?.uid ?: ""
-                    post.image = uri.toString()
-                    createPostInDB(post, callback)
-                }
+        uploadImage(imageUri, "images/$userId/posts/post_$timestamp.jpg") { imageUrl ->
+            if (imageUrl != null) {
+                post.ownerId = auth.currentUser?.uid ?: ""
+                post.image = imageUrl
+                createPostInDB(post, callback)
+            } else {
+                // Handle the case where image upload failed
+                println("Image upload failed")
             }
-            ?.addOnFailureListener { e ->
-                // Handle errors during the upload
-            }
+        }
     }
 
     private fun createPostInDB(post: Post, callback: () -> Unit) {
@@ -188,6 +205,23 @@ class FirebaseModel {
             }
             .addOnFailureListener { e ->
                 // handle error
+            }
+    }
+
+    private fun uploadImage(imageUri: Uri, filename: String, callback: (String?) -> Unit) {
+        val imageRef = storageRef?.child(filename)
+
+        // Upload file to Firebase Storage
+        imageRef?.putFile(imageUri)
+            ?.addOnSuccessListener { _ ->
+                // Image uploaded successfully
+                imageRef.downloadUrl.addOnSuccessListener { uri ->
+                    callback(uri.toString())
+                }
+            }
+            ?.addOnFailureListener { e ->
+                // Handle errors during the upload
+                callback(null)
             }
     }
 }
