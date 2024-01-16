@@ -86,4 +86,7 @@
     <string name="breed_info_text_life_span">Life span:</string>
     <string name="breed_info_text_height">Height:</string>
     <string name="breed_info_text_weight">Weight:</string>
+    <string name="post_dog_breed">breed</string>
+    <string name="post_username">username</string>
+    <string name="post_description">description</string>
 </resources>
