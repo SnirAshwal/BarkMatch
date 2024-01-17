@@ -1,11 +1,13 @@
 package com.BarkMatch.homePageFragments
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -18,6 +20,8 @@ import com.BarkMatch.databinding.FragmentProfileBinding
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
 import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.Picasso
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
 class ProfileFragment : Fragment() {
 
@@ -29,6 +33,7 @@ class ProfileFragment : Fragment() {
     private var editProfileBtn: Button? = null
     private var tvUsername: TextView? = null
     private var tvDescription: TextView? = null
+    private var imgProfileImage: ImageView? = null
     private var tvPosts: TextView? = null
     private var swipeRefreshLayoutFeed: SwipeRefreshLayout? = null
 
@@ -67,6 +72,7 @@ class ProfileFragment : Fragment() {
 
         tvUsername = binding.tvUsername
         tvDescription = binding.tvDescription
+        imgProfileImage = binding.imgProfileImage
         tvPosts = binding.tvPosts
 
         initUserDetails(userId)
@@ -93,8 +99,10 @@ class ProfileFragment : Fragment() {
 
         progressBar?.visibility = View.VISIBLE
 
-        Model.instance.getAllPosts { posts ->
-            getPosts(posts)
+        auth.currentUser?.uid?.let {
+            Model.instance.getAllPostsByUserId(it) { posts ->
+                getPosts(posts)
+            }
         }
     }
 
@@ -112,11 +120,21 @@ class ProfileFragment : Fragment() {
         progressBar?.visibility = View.GONE
     }
 
+    @SuppressLint("SetTextI18n")
     private fun initUserDetails(userId: String) {
-        // TODO: write init user details functionality
+        Model.instance.getUserDetails(userId) { user, postCount ->
+            tvUsername?.text = user.firstName + " " + user.lastName
+            tvDescription?.text = user.description
+            tvPosts?.text = postCount.toString()
 
-        tvUsername?.text = "Snir Ashwal"
-        tvDescription?.text = "This is my profile page"
-        tvPosts?.text = "1"
+            if (user.profileImage.isNotEmpty()) {
+                Picasso.get()
+                    .load(user.profileImage)
+                    .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+                    .fit()
+                    .centerCrop()
+                    .into(imgProfileImage)
+            }
+        }
     }
 }
