@@ -32,7 +32,8 @@
             android:name=".HomeActivity"
             android:exported="true"
             android:label="@string/title_activity_home"
-            android:theme="@style/Theme.BarkMatch">
+            android:theme="@style/Theme.BarkMatch"
+            android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
             android:name=".MainActivity"
