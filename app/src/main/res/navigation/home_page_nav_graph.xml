@@ -38,5 +38,35 @@
         <action
             android:id="@+id/action_profile_to_createPost"
             app:destination="@id/fragment_create_post" />
+
+        <action
+            android:id="@+id/action_profile_to_activityEditProfile"
+            app:destination="@id/ActivityEditProfile">
+        </action>
     </fragment>
+
+    <activity
+        android:id="@+id/ActivityEditProfile"
+        android:name="com.BarkMatch.EditProfileActivity">
+
+        <argument
+            android:name="firstName"
+            android:defaultValue=''/>
+        <argument
+            android:name="lastName"
+            app:argType="string"
+            android:defaultValue=''/>
+        <argument
+            android:name="description"
+            app:argType="string"
+            android:defaultValue='' />
+        <argument
+            android:name="phoneNumber"
+            app:argType="string"
+            android:defaultValue='' />
+        <argument
+            android:name="profileImage"
+            app:argType="string"
+            android:defaultValue='' />
+    </activity>
 </navigation>

@@ -2,18 +2,11 @@ package com.BarkMatch.models
 
 import android.app.Activity
 import android.net.Uri
-import android.os.Looper
 import android.view.View
-import androidx.core.os.HandlerCompat
 import androidx.fragment.app.FragmentActivity
-import com.BarkMatch.dao.AppLocalDatabase
-import java.util.concurrent.Executors
 
 class Model private constructor() {
 
-    private val database = AppLocalDatabase.db
-    private var executor = Executors.newSingleThreadExecutor()
-    private var mainHandler = HandlerCompat.createAsync(Looper.getMainLooper())
     private val firebaseModel = FirebaseModel()
 
 
@@ -64,6 +57,12 @@ class Model private constructor() {
     fun getUserDetails(userId: String, callback: (User, Int) -> Unit) {
         firebaseModel.getUserDetails(userId) { user, postCount ->
             callback(user, postCount)
+        }
+    }
+
+    fun editUserDetails(user: User, newProfileImageUri: Uri?, callback: (Boolean) -> Unit) {
+        firebaseModel.editUserDetails(user, newProfileImageUri) { isSuccess ->
+            callback(isSuccess)
         }
     }
 }

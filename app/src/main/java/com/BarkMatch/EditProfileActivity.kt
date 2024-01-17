@@ -1,11 +1,22 @@
 package com.BarkMatch
 
+import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.ProgressBar
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.BarkMatch.databinding.ActivityEditProfileBinding
 import com.BarkMatch.models.Model
+import com.BarkMatch.models.User
+import com.BarkMatch.utils.SnackbarUtils
+import com.BarkMatch.utils.Validations
+import com.squareup.picasso.Picasso
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -16,47 +27,124 @@ class EditProfileActivity : AppCompatActivity() {
     private var etEditProfileLastName: EditText? = null
     private var etEditProfileDescription: EditText? = null
     private var etEditProfilePhoneNumber: EditText? = null
+    private var ivEditProfileImg: ImageView? = null
+    private var selectedImageUri: Uri? = null
+    private var pbEditProfile: ProgressBar? = null
+
+    private var binding: ActivityEditProfileBinding? = null
+
+    private val pickImageLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            Picasso.get()
+                .load(uri)
+                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+                .fit()
+                .centerCrop()
+                .into(ivEditProfileImg)
+            selectedImageUri = uri
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit_profile)
+        binding = ActivityEditProfileBinding.inflate(layoutInflater)
+        val view = binding!!.root
+        setContentView(view)
 
-        btnEditProfile = findViewById(R.id.btnEditProfile)
-        btnLogout = findViewById(R.id.btnLogout)
-        backButton = findViewById(R.id.btnEditProfileBack)
-        etEditProfileFirstName = findViewById(R.id.etEditProfileFirstName)
-        etEditProfileLastName = findViewById(R.id.etEditProfileLastName)
-        etEditProfileDescription = findViewById(R.id.etEditProfileDescription)
-        etEditProfilePhoneNumber = findViewById(R.id.etEditProfilePhoneNumber)
+        pbEditProfile = binding?.pbEditProfile
+        btnEditProfile = binding?.btnEditProfile
+        btnLogout = binding?.btnLogout
+        backButton = binding?.btnEditProfileBack
+        etEditProfileFirstName = binding?.etEditProfileFirstName
+        etEditProfileLastName = binding?.etEditProfileLastName
+        etEditProfileDescription = binding?.etEditProfileDescription
+        etEditProfilePhoneNumber = binding?.etEditProfilePhoneNumber
+        ivEditProfileImg = binding?.ivEditProfileImg
+        ivEditProfileImg?.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
 
         backButton?.setOnClickListener {
             finish()
         }
 
         btnEditProfile?.setOnClickListener {
-            // TODO: write edit profile functionality
-            finish() // navigate back on finish editing
+            if (Validations.isFieldEmpty(etEditProfileFirstName?.text.toString())) {
+                SnackbarUtils.showSnackbar(view, "First name is required")
+                return@setOnClickListener
+            }
+
+            if (Validations.isFieldEmpty(etEditProfileLastName?.text.toString())) {
+                SnackbarUtils.showSnackbar(view, "Last name is required")
+                return@setOnClickListener
+            }
+
+            if (Validations.isFieldEmpty(etEditProfileDescription?.text.toString())) {
+                SnackbarUtils.showSnackbar(view, "Description is required")
+                return@setOnClickListener
+            }
+
+            if (Validations.isFieldEmpty(etEditProfilePhoneNumber?.text.toString())) {
+                SnackbarUtils.showSnackbar(view, "Phone number is required")
+                return@setOnClickListener
+            }
+
+            val user = User(
+                etEditProfileFirstName?.text.toString(),
+                etEditProfileLastName?.text.toString(),
+                etEditProfilePhoneNumber?.text.toString(),
+                etEditProfileDescription?.text.toString()
+            )
+
+            pbEditProfile?.visibility = View.VISIBLE
+            Model.instance.editUserDetails(user, selectedImageUri) { isSuccess ->
+                if (isSuccess) {
+                    finish() // navigate back on finish editing
+                } else {
+                    SnackbarUtils.showSnackbar(
+                        view,
+                        "Something went went wrong, failed to save changes"
+                    )
+                }
+
+                pbEditProfile?.visibility = View.GONE
+            }
         }
 
         btnLogout?.setOnClickListener {
             Model.instance.logoutUser(this)
         }
 
-        val extras = intent.extras
-        if (extras != null) {
-            val value = extras.getString("userId")
-            if (value != null) {
-                initUserDetails(value)
-            }
-        }
+        initUserDetails()
     }
 
-    fun initUserDetails(userId: String) {
-        // TODO: write init user details functionality
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
+    }
 
-        etEditProfileFirstName?.setText("test")
-        etEditProfileLastName?.setText("test")
-        etEditProfileDescription?.setText("test")
-        etEditProfilePhoneNumber?.setText("test")
+    private fun initUserDetails() {
+        etEditProfileFirstName?.setText(intent?.extras?.let { EditProfileActivityArgs.fromBundle(it).firstName })
+        etEditProfileLastName?.setText(intent?.extras?.let { EditProfileActivityArgs.fromBundle(it).lastName })
+        etEditProfileDescription?.setText(intent?.extras?.let {
+            EditProfileActivityArgs.fromBundle(
+                it
+            ).description
+        })
+        etEditProfilePhoneNumber?.setText(intent?.extras?.let {
+            EditProfileActivityArgs.fromBundle(
+                it
+            ).phoneNumber
+        })
+
+        val userProfileImageUrl =
+            intent?.extras?.let { EditProfileActivityArgs.fromBundle(it).profileImage } ?: ""
+        if (userProfileImageUrl.isNotEmpty()) {
+            Picasso.get()
+                .load(userProfileImageUrl)
+                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+                .fit()
+                .centerCrop()
+                .into(ivEditProfileImg)
+        }
     }
 }
