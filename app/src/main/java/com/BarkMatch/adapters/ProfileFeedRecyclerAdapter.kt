@@ -21,6 +21,6 @@ class ProfileFeedRecyclerAdapter(var posts: List<Post>?) : RecyclerView.Adapter<
 
     override fun onBindViewHolder(holder: ProfileFeedViewHolder, position: Int) {
         val post = posts?.get(position)
-        holder.bind(post, position)
+        holder.bind(post)
     }
 }

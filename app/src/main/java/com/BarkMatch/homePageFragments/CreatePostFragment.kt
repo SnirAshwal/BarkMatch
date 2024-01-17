@@ -43,6 +43,8 @@ class CreatePostFragment : Fragment() {
             Picasso.get()
                 .load(uri)
                 .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+                .fit()
+                .centerCrop()
                 .into(imageView)
             selectedImageUri = uri
         }

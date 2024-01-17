@@ -47,6 +47,8 @@ class FeedViewHolder(
             Picasso.get()
                 .load(post.image)
                 .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+                .fit()
+                .centerCrop()
                 .into(ivPostImage)
         }
 

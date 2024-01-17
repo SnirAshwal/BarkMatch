@@ -140,6 +140,8 @@ class BreedInfoActivity : AppCompatActivity() {
                         Picasso.get()
                             .load(dogImageInfo.url)
                             .transform(RoundedCornersTransformation(50,0)) // Make the image corners round
+                            .fit()
+                            .centerCrop()
                             .into(ivBreedImage)
                     }
 
