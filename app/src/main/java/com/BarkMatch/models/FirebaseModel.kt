@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.view.View
+import com.BarkMatch.EditProfileActivity
 import com.BarkMatch.HomeActivity
 import com.BarkMatch.MainActivity
 import com.BarkMatch.utils.SnackbarUtils
@@ -227,6 +228,49 @@ class FirebaseModel {
             ?.addOnFailureListener { e ->
                 // Handle errors during the upload
                 callback(null)
+            }
+    }
+
+    fun editUserDetails(user: User, newProfileImageUri: Uri?, callback: (Boolean) -> Unit) {
+        user.id = auth.currentUser?.uid.toString()
+
+        if (newProfileImageUri != null) {
+            val timestamp = System.currentTimeMillis()
+            uploadImage(
+                newProfileImageUri,
+                "images/${user.id}/profile/profile_$timestamp.jpg"
+            ) { imageUrl ->
+                if (imageUrl != null) {
+                    user.profileImage = imageUrl
+                    editUserDetailsInDB(user, true) { isSuccess ->
+                        callback(isSuccess)
+                    }
+                } else {
+                    callback(false)
+                }
+            }
+        } else {
+            editUserDetailsInDB(user, false) { isSuccess ->
+                callback(isSuccess)
+            }
+        }
+    }
+
+    private fun editUserDetailsInDB(
+        user: User,
+        isProfileImageUpdated: Boolean,
+        callback: (Boolean) -> Unit
+    ) {
+        val userRef: DocumentReference = db.collection("users").document(user.id)
+        val updates =
+            if (isProfileImageUpdated) User.getUpdateMapWithImage(user) else User.getUpdateMap(user)
+
+        userRef.update(updates)
+            .addOnSuccessListener {
+                callback(true)
+            }
+            .addOnFailureListener {
+                callback(false)
             }
     }
 

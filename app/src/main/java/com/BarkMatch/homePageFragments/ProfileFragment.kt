@@ -1,7 +1,6 @@
 package com.BarkMatch.homePageFragments
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +10,10 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.BarkMatch.EditProfileActivity
 import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter
 import com.BarkMatch.databinding.FragmentProfileBinding
 import com.BarkMatch.models.Model
@@ -36,6 +35,12 @@ class ProfileFragment : Fragment() {
     private var imgProfileImage: ImageView? = null
     private var tvPosts: TextView? = null
     private var swipeRefreshLayoutFeed: SwipeRefreshLayout? = null
+
+    private var userFirstName: String = ""
+    private var userLastName: String = ""
+    private var userDescription: String = ""
+    private var userPhoneNumber: String = ""
+    private var userProfileImage: String = ""
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
@@ -63,11 +68,15 @@ class ProfileFragment : Fragment() {
 
         editProfileBtn = binding.btnEditProfile
         editProfileBtn?.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("userId", userId)
-            val intent = Intent(activity, EditProfileActivity::class.java)
-            intent.putExtras(bundle)
-            startActivity(intent)
+            val action =
+                ProfileFragmentDirections.actionProfileToActivityEditProfile(
+                    description = userDescription,
+                    firstName = userFirstName,
+                    lastName = userLastName,
+                    phoneNumber = userPhoneNumber,
+                    profileImage = userProfileImage
+                )
+            findNavController().navigate(action)
         }
 
         tvUsername = binding.tvUsername
@@ -103,12 +112,13 @@ class ProfileFragment : Fragment() {
             Model.instance.getAllPostsByUserId(it) { posts ->
                 getPosts(posts)
             }
+
+            initUserDetails(it)
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-
         _binding = null
     }
 
@@ -135,6 +145,12 @@ class ProfileFragment : Fragment() {
                     .centerCrop()
                     .into(imgProfileImage)
             }
+
+            userFirstName = user.firstName
+            userLastName = user.lastName
+            userDescription = user.description
+            userPhoneNumber = user.phoneNumber
+            userProfileImage = user.profileImage
         }
     }
 }

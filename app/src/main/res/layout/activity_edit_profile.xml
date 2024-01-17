@@ -29,7 +29,6 @@
         android:contentDescription="@string/default_profile_img_description"
         android:maxWidth="150sp"
         android:maxHeight="150sp"
-        android:padding="20sp"
         android:scaleType="centerCrop"
         android:src="@drawable/default_profile_image"
         app:layout_constraintEnd_toEndOf="parent"
@@ -175,5 +174,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:strokeColor="#000000"
         app:strokeWidth="2sp" />
+
+    <ProgressBar
+        android:id="@+id/pbEditProfile"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="invisible"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
