@@ -49,7 +49,6 @@ class Model private constructor() {
         }
     }
 
-
     fun getAllPosts(callback: (List<Post>) -> Unit) {
         firebaseModel.getAllPosts(callback)
     }
@@ -60,5 +59,11 @@ class Model private constructor() {
 
     fun createPost(post: Post, imageUri: Uri, callback: () -> Unit) {
         firebaseModel.createPost(post, imageUri, callback)
+    }
+
+    fun getUserDetails(userId: String, callback: (User, Int) -> Unit) {
+        firebaseModel.getUserDetails(userId) { user, postCount ->
+            callback(user, postCount)
+        }
     }
 }

@@ -1,8 +1,6 @@
 package com.BarkMatch.adapters
 
-import android.os.Environment
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.BarkMatch.R
@@ -10,7 +8,6 @@ import com.BarkMatch.homePageFragments.ProfileFragment
 import com.BarkMatch.models.Post
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
-import java.io.File
 
 class ProfileFeedViewHolder(
     itemView: View,

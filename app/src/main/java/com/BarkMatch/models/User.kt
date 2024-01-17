@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class User(
     @PrimaryKey(autoGenerate = false)
-    val id: String,
+    var id: String,
     val firstName: String,
     val lastName: String,
     var profileImage: String,
@@ -14,6 +14,9 @@ data class User(
     val description: String,
     val email: String
 ) {
+
+    constructor() : this("", "", "", "", "")
+
     constructor(
         firstName: String,
         lastName: String,

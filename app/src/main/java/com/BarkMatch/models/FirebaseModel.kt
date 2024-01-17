@@ -11,6 +11,7 @@ import com.BarkMatch.utils.SnackbarUtils
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
@@ -97,6 +98,7 @@ class FirebaseModel {
                 uploadImage(imageUri, "images/$userId/profile/profile_$timestamp.jpg") { imageUrl ->
                     if (imageUrl != null) {
                         newUser.profileImage = imageUrl
+                        newUser.id = userId
                         saveUserInDB(context, userId, newUser)
                     } else {
                         // Handle the case where image upload failed
@@ -161,25 +163,28 @@ class FirebaseModel {
                     }
                     callback(posts)
                 }
+
                 false -> callback(listOf())
             }
         }
     }
 
     fun getAllPostsByUserId(userId: String, callback: (List<Post>) -> Unit) {
-        db.collection(POSTS_COLLECTION_PATH).whereEqualTo("ownerId", userId).get().addOnCompleteListener {
-            when (it.isSuccessful) {
-                true -> {
-                    val posts: MutableList<Post> = mutableListOf()
-                    for (json in it.result) {
-                        val post = Post.fromJSON(json.data)
-                        posts.add(post)
+        db.collection(POSTS_COLLECTION_PATH).whereEqualTo("ownerId", userId).get()
+            .addOnCompleteListener {
+                when (it.isSuccessful) {
+                    true -> {
+                        val posts: MutableList<Post> = mutableListOf()
+                        for (json in it.result) {
+                            val post = Post.fromJSON(json.data)
+                            posts.add(post)
+                        }
+                        callback(posts)
                     }
-                    callback(posts)
+
+                    false -> callback(listOf())
                 }
-                false -> callback(listOf())
             }
-        }
     }
 
     fun createPost(post: Post, imageUri: Uri, callback: () -> Unit) {
@@ -222,6 +227,44 @@ class FirebaseModel {
             ?.addOnFailureListener { e ->
                 // Handle errors during the upload
                 callback(null)
+            }
+    }
+
+    fun getUserDetails(userId: String, callback: (User, Int) -> Unit) {
+        val userRef: DocumentReference = db.collection("users").document(userId)
+        userRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val user = documentSnapshot.toObject(User::class.java)
+                    if (user != null) {
+                        getPostCountForUser(userId) { postCount ->
+                            callback(user, postCount)
+                        }
+                    } else {
+                        callback(User(), 0)
+                    }
+                } else {
+                    // User document does not exist
+                    callback(User(), 0)
+                }
+            }
+            .addOnFailureListener { e ->
+                // Handle the exception
+                callback(User(), 0)
+            }
+    }
+
+    private fun getPostCountForUser(userId: String, callback: (Int) -> Unit) {
+        db.collection("posts")
+            .whereEqualTo("ownerId", userId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                // Return the count of posts
+                callback(querySnapshot.size())
+            }
+            .addOnFailureListener { e ->
+                // Handle the exception
+                callback(0)
             }
     }
 }
