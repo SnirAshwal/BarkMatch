@@ -30,18 +30,13 @@ class ProfileFeedViewHolder(
         }
     }
 
-    fun bind(post: Post?, position: Int) {
+    fun bind(post: Post?) {
         this.post = post
-
-            val imageFile = File(
-                itemView.context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                "dog_post_img.jpg"
-            )
-
-            // Loading post 1 img
-            Picasso.get()
-                .load(R.drawable.dog_post_img)
-                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
-                .into(ivProfilePostImage)
-        }
+        Picasso.get()
+            .load(post?.image)
+            .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
+            .fit()
+            .centerCrop()
+            .into(ivProfilePostImage)
+    }
 }
