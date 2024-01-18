@@ -7,13 +7,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.BarkMatch.R
 import com.BarkMatch.homePageFragments.ProfileFragment
 import com.BarkMatch.models.Post
+import com.google.firebase.firestore.DocumentSnapshot
 
 class FeedRecyclerAdapter(
     var posts: List<Post>?,
     private val context: Context
 ) : RecyclerView.Adapter<FeedViewHolder>() {
 
-    var listener: ProfileFragment.OnItemClickListener? = null
+    companion object {
+        const val FEED_PAGE_SIZE = 8L
+        var isLoading = false
+        var isLastPage = false
+        var lastVisiblePost: DocumentSnapshot? = null
+    }
 
     override fun getItemCount(): Int = posts?.size ?: 0
 

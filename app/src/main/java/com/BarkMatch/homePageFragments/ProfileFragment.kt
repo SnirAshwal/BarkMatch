@@ -127,14 +127,7 @@ class ProfileFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-//        progressBar?.visibility = View.VISIBLE
-
         auth.currentUser?.uid?.let {
-//            Model.instance.getInitialProfileFeedPostsByUserId(it) { posts ->
-//                getPosts(posts)
-//            }
-
             initUserDetails(it)
         }
     }

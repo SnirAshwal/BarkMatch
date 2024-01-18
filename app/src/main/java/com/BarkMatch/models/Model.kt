@@ -10,7 +10,6 @@ class Model private constructor() {
 
     private val firebaseModel = FirebaseModel()
 
-
     companion object {
         val instance: Model = Model()
     }
@@ -43,12 +42,12 @@ class Model private constructor() {
         }
     }
 
-    fun getInitialFeedPosts(callback: (List<Post>) -> Unit) {
+    fun getInitialFeedPosts(callback: (MutableList<Post>) -> Unit) {
         firebaseModel.getInitialFeedPosts(callback)
     }
 
-    fun loadMorePostsForFeed(documentSnapshot: DocumentSnapshot?, callback: (List<Post>) -> Unit) {
-        firebaseModel.loadMorePostsForFeed(documentSnapshot, callback)
+    fun loadMorePostsForFeed(callback: (MutableList<Post>) -> Unit) {
+        firebaseModel.loadMorePostsForFeed(callback)
     }
 
     fun getInitialProfileFeedPostsByUserId(

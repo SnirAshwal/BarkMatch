@@ -7,14 +7,15 @@ import android.net.Uri
 import android.view.View
 import com.BarkMatch.HomeActivity
 import com.BarkMatch.MainActivity
+import com.BarkMatch.adapters.FeedRecyclerAdapter
 import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter
 import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter.Companion.PROFILE_PAGE_SIZE
+import com.BarkMatch.adapters.FeedRecyclerAdapter.Companion.FEED_PAGE_SIZE
 import com.BarkMatch.utils.SnackbarUtils
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
@@ -36,7 +37,6 @@ class FirebaseModel {
     companion object {
         const val POSTS_COLLECTION_PATH = "posts"
         const val USERS_COLLECTION_PATH = "users"
-        const val INITIAL_FEED_POSTS_AMOUNT = 3L
     }
 
     init {
@@ -157,10 +157,13 @@ class FirebaseModel {
         (context as Activity).finish()
     }
 
-    fun getInitialFeedPosts(callback: (List<Post>) -> Unit) {
+    fun getInitialFeedPosts(callback: (MutableList<Post>) -> Unit) {
+        FeedRecyclerAdapter.isLastPage = false
+        FeedRecyclerAdapter.isLoading = true
+
         db.collection(POSTS_COLLECTION_PATH)
             .orderBy("creationDate", Query.Direction.DESCENDING)
-            .limit(INITIAL_FEED_POSTS_AMOUNT)
+            .limit(FEED_PAGE_SIZE)
             .get().addOnCompleteListener {
                 when (it.isSuccessful) {
                     true -> {
@@ -169,19 +172,31 @@ class FirebaseModel {
                             val post = Post.fromJSON(json.data)
                             posts.add(post)
                         }
+
+                        FeedRecyclerAdapter.isLoading = false
+
+                        if (!it.result.isEmpty) {
+                            FeedRecyclerAdapter.lastVisiblePost = it.result.last()
+                        }
+
                         callback(posts)
                     }
 
-                    false -> callback(listOf())
+                    false -> {
+                        FeedRecyclerAdapter.isLoading = false
+                        callback(mutableListOf())
+                    }
                 }
             }
     }
 
-    fun loadMorePostsForFeed(lastVisiblePost: DocumentSnapshot?, callback: (List<Post>) -> Unit) {
+    fun loadMorePostsForFeed(callback: (MutableList<Post>) -> Unit) {
+        FeedRecyclerAdapter.isLoading = true
+
         db.collection(POSTS_COLLECTION_PATH)
             .orderBy("creationDate", Query.Direction.DESCENDING)
-            .startAfter(lastVisiblePost)
-            .limit(PROFILE_PAGE_SIZE)
+            .startAfter(FeedRecyclerAdapter.lastVisiblePost?.getDate("creationDate"))
+            .limit(FEED_PAGE_SIZE)
             .get()
             .addOnCompleteListener {
                 when (it.isSuccessful) {
@@ -192,14 +207,20 @@ class FirebaseModel {
                             posts.add(post)
                         }
 
+                        FeedRecyclerAdapter.isLoading = false
+                        FeedRecyclerAdapter.isLastPage = posts.size < PROFILE_PAGE_SIZE
+
                         if (!it.result.isEmpty) {
-                            ProfileFeedRecyclerAdapter.lastVisiblePost = it.result.last()
+                            FeedRecyclerAdapter.lastVisiblePost = it.result.last()
                         }
 
                         callback(posts)
                     }
 
-                    false -> callback(listOf())
+                    false -> {
+                        FeedRecyclerAdapter.isLoading = false
+                        callback(mutableListOf())
+                    }
                 }
             }
     }

@@ -17,7 +17,6 @@ import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
 class FeedViewHolder(
     itemView: View,
-//    val listener: StudentsRcyclerViewActivity.OnItemClickListener?,
     private val context: Context,
     var posts: List<Post>?
 ) : RecyclerView.ViewHolder(itemView) {
