@@ -75,6 +75,12 @@ class Model private constructor() {
         }
     }
 
+    fun getUserContactDetails(userId: String, callback: (String, String) -> Unit) {
+        firebaseModel.getUserContactDetails(userId) { phoneNumber, fullName ->
+            callback(phoneNumber, fullName)
+        }
+    }
+
     fun editUserDetails(user: User, newProfileImageUri: Uri?, callback: (Boolean) -> Unit) {
         firebaseModel.editUserDetails(user, newProfileImageUri) { isSuccess ->
             callback(isSuccess)

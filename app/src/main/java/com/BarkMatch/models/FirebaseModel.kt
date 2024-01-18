@@ -391,6 +391,27 @@ class FirebaseModel {
             }
     }
 
+    fun getUserContactDetails(userId: String, callback: (String, String) -> Unit) {
+        val userRef: DocumentReference = db.collection("users").document(userId)
+        userRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val user = documentSnapshot.toObject(User::class.java)
+                    callback(
+                        user?.phoneNumber ?: "",
+                        (user?.firstName + " " + user?.lastName)
+                    )
+                } else {
+                    // User document does not exist
+                    callback("", "")
+                }
+            }
+            .addOnFailureListener { e ->
+                // Handle the exception
+                callback("", "")
+            }
+    }
+
     private fun getPostCountForUser(userId: String, callback: (Int) -> Unit) {
         db.collection("posts")
             .whereEqualTo("ownerId", userId)
