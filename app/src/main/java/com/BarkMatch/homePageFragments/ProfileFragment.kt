@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter
+import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter.Companion.PROFILE_PAGE_SIZE
 import com.BarkMatch.databinding.FragmentProfileBinding
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
@@ -26,7 +27,7 @@ class ProfileFragment : Fragment() {
 
     private val auth = FirebaseAuth.getInstance()
     private var profileFeedPostsView: RecyclerView? = null
-    private var posts: List<Post>? = null
+    private var posts: MutableList<Post>? = null
     private var adapter: ProfileFeedRecyclerAdapter? = null
     private var progressBar: ProgressBar? = null
     private var editProfileBtn: Button? = null
@@ -56,7 +57,7 @@ class ProfileFragment : Fragment() {
         progressBar?.visibility = View.VISIBLE
 
         val userId = auth.currentUser?.uid ?: ""
-        Model.instance.getAllPostsByUserId(userId) { posts ->
+        Model.instance.getInitialProfileFeedPostsByUserId(userId) { posts ->
             getPosts(posts)
         }
 
@@ -65,6 +66,27 @@ class ProfileFragment : Fragment() {
         profileFeedPostsView?.layoutManager = GridLayoutManager(context, 2)
         adapter = ProfileFeedRecyclerAdapter(posts)
         profileFeedPostsView?.adapter = adapter
+        profileFeedPostsView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                if (!ProfileFeedRecyclerAdapter.isLoading && !ProfileFeedRecyclerAdapter.isLastPage) {
+                    if (visibleItemCount + firstVisibleItemPosition >= totalItemCount
+                        && firstVisibleItemPosition >= 0
+                        && totalItemCount >= PROFILE_PAGE_SIZE
+                    ) {
+                        // Load more posts
+                        Model.instance.loadMorePostsForProfileFeed(userId) { posts ->
+                            addPosts(posts)
+                        }
+                    }
+                }
+            }
+        })
 
         editProfileBtn = binding.btnEditProfile
         editProfileBtn?.setOnClickListener {
@@ -88,7 +110,7 @@ class ProfileFragment : Fragment() {
 
         swipeRefreshLayoutFeed = binding.srlFeed
         swipeRefreshLayoutFeed?.setOnRefreshListener {
-            Model.instance.getAllPostsByUserId(userId) { posts ->
+            Model.instance.getInitialProfileFeedPostsByUserId(userId) { posts ->
                 getPosts(posts)
             }
 
@@ -105,14 +127,7 @@ class ProfileFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-        progressBar?.visibility = View.VISIBLE
-
         auth.currentUser?.uid?.let {
-            Model.instance.getAllPostsByUserId(it) { posts ->
-                getPosts(posts)
-            }
-
             initUserDetails(it)
         }
     }
@@ -122,9 +137,19 @@ class ProfileFragment : Fragment() {
         _binding = null
     }
 
-    private fun getPosts(posts: List<Post>) {
+    private fun addPosts(posts: MutableList<Post>) {
+        this.posts?.addAll(posts)
+        adapter?.posts = this.posts
+
+        adapter?.notifyDataSetChanged()
+
+        progressBar?.visibility = View.GONE
+    }
+
+    private fun getPosts(posts: MutableList<Post>) {
         this.posts = posts
         adapter?.posts = posts
+
         adapter?.notifyDataSetChanged()
 
         progressBar?.visibility = View.GONE

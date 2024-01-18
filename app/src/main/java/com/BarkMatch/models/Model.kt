@@ -4,11 +4,11 @@ import android.app.Activity
 import android.net.Uri
 import android.view.View
 import androidx.fragment.app.FragmentActivity
+import com.google.firebase.firestore.DocumentSnapshot
 
 class Model private constructor() {
 
     private val firebaseModel = FirebaseModel()
-
 
     companion object {
         val instance: Model = Model()
@@ -42,12 +42,26 @@ class Model private constructor() {
         }
     }
 
-    fun getAllPosts(callback: (List<Post>) -> Unit) {
-        firebaseModel.getAllPosts(callback)
+    fun getInitialFeedPosts(callback: (MutableList<Post>) -> Unit) {
+        firebaseModel.getInitialFeedPosts(callback)
     }
 
-    fun getAllPostsByUserId(userId: String, callback: (List<Post>) -> Unit) {
-        firebaseModel.getAllPostsByUserId(userId, callback)
+    fun loadMorePostsForFeed(callback: (MutableList<Post>) -> Unit) {
+        firebaseModel.loadMorePostsForFeed(callback)
+    }
+
+    fun getInitialProfileFeedPostsByUserId(
+        userId: String,
+        callback: (MutableList<Post>) -> Unit
+    ) {
+        firebaseModel.getInitialProfileFeedPostsByUserId(userId, callback)
+    }
+
+    fun loadMorePostsForProfileFeed(
+        userId: String,
+        callback: (MutableList<Post>) -> Unit
+    ) {
+        firebaseModel.loadMorePostsForProfileFeed(userId, callback)
     }
 
     fun createPost(post: Post, imageUri: Uri, callback: () -> Unit) {
@@ -57,6 +71,12 @@ class Model private constructor() {
     fun getUserDetails(userId: String, callback: (User, Int) -> Unit) {
         firebaseModel.getUserDetails(userId) { user, postCount ->
             callback(user, postCount)
+        }
+    }
+
+    fun getUserContactDetails(userId: String, callback: (String, String) -> Unit) {
+        firebaseModel.getUserContactDetails(userId) { phoneNumber, fullName ->
+            callback(phoneNumber, fullName)
         }
     }
 

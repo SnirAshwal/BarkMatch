@@ -5,22 +5,15 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.BarkMatch.api.ApiService
 import com.BarkMatch.api.DogImageInfo
 import com.BarkMatch.api.DogInfo
 import com.BarkMatch.api.RetrofitClient
 import com.BarkMatch.databinding.ActivityBreedInfoBinding
-import com.BarkMatch.databinding.FragmentFeedBinding
 import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.shape.CornerFamily
-import com.google.android.material.shape.CornerTreatment
-import com.google.android.material.shape.MaterialShapeDrawable
-import com.google.android.material.shape.ShapeAppearanceModel
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import retrofit2.Call
@@ -42,25 +35,26 @@ class BreedInfoActivity : AppCompatActivity() {
     private var tvBreedWeight: TextView? = null
     private var progressBar: ProgressBar? = null
 
-    private lateinit var _binding: ActivityBreedInfoBinding
+    private var binding: ActivityBreedInfoBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _binding = ActivityBreedInfoBinding.inflate(layoutInflater)
-        setContentView(_binding.root)
+        binding = ActivityBreedInfoBinding.inflate(layoutInflater)
+        val view = binding!!.root
+        setContentView(view)
 
-        progressBar = _binding.pbDogInfo
+        progressBar = binding?.pbDogInfo
         progressBar?.visibility = View.VISIBLE
 
-        ivBreedImage = _binding.ivBreedImage
-        tvBreedName = _binding.tvBreedName
-        tvBreedGroup = _binding.tvBreedGroup
-        tvBreedTemperament = _binding.tvBreedTemperament
-        tvBreedBredFor = _binding.tvBreedBredFor
-        tvBreedOrigin = _binding.tvBreedOrigin
-        tvBreedLifSpan = _binding.tvBreedLifSpan
-        tvBreedHeight = _binding.tvBreedHeight
-        tvBreedWeight = _binding.tvBreedWeight
+        ivBreedImage = binding?.ivBreedImage
+        tvBreedName = binding?.tvBreedName
+        tvBreedGroup = binding?.tvBreedGroup
+        tvBreedTemperament = binding?.tvBreedTemperament
+        tvBreedBredFor = binding?.tvBreedBredFor
+        tvBreedOrigin = binding?.tvBreedOrigin
+        tvBreedLifSpan = binding?.tvBreedLifSpan
+        tvBreedHeight = binding?.tvBreedHeight
+        tvBreedWeight = binding?.tvBreedWeight
 
         val extras = intent.extras
         if (extras != null) {
@@ -121,10 +115,15 @@ class BreedInfoActivity : AppCompatActivity() {
             }
         }
 
-        btnBreedInfoBack = _binding.btnBreedInfoBack
+        btnBreedInfoBack = binding?.btnBreedInfoBack
         btnBreedInfoBack?.setOnClickListener {
             finish()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
     }
 
     fun getBreedImageInfo(imageId: String) {

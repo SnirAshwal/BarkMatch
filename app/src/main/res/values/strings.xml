@@ -89,4 +89,5 @@
     <string name="post_dog_breed">breed</string>
     <string name="post_username">username</string>
     <string name="post_description">description</string>
+    <string name="profile_user_name">Username</string>
 </resources>
