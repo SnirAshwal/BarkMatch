@@ -41,7 +41,7 @@
             android:paddingEnd="10dp"
             android:paddingBottom="5dp"
             android:text="@string/post_dog_breed"
-            android:textSize="20sp"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -69,12 +69,12 @@
             android:id="@+id/imPostBreedInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="13dp"
             android:contentDescription="@string/post_image_content_description"
             app:layout_constraintStart_toEndOf="@+id/tvPostBreed"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/info_32" />
+            app:srcCompat="@drawable/info_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

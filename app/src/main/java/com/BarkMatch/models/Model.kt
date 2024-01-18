@@ -4,6 +4,7 @@ import android.app.Activity
 import android.net.Uri
 import android.view.View
 import androidx.fragment.app.FragmentActivity
+import com.google.firebase.firestore.DocumentSnapshot
 
 class Model private constructor() {
 
@@ -42,12 +43,26 @@ class Model private constructor() {
         }
     }
 
-    fun getAllPosts(callback: (List<Post>) -> Unit) {
-        firebaseModel.getAllPosts(callback)
+    fun getInitialFeedPosts(callback: (List<Post>) -> Unit) {
+        firebaseModel.getInitialFeedPosts(callback)
     }
 
-    fun getAllPostsByUserId(userId: String, callback: (List<Post>) -> Unit) {
-        firebaseModel.getAllPostsByUserId(userId, callback)
+    fun loadMorePostsForFeed(documentSnapshot: DocumentSnapshot?, callback: (List<Post>) -> Unit) {
+        firebaseModel.loadMorePostsForFeed(documentSnapshot, callback)
+    }
+
+    fun getInitialProfileFeedPostsByUserId(
+        userId: String,
+        callback: (MutableList<Post>) -> Unit
+    ) {
+        firebaseModel.getInitialProfileFeedPostsByUserId(userId, callback)
+    }
+
+    fun loadMorePostsForProfileFeed(
+        userId: String,
+        callback: (MutableList<Post>) -> Unit
+    ) {
+        firebaseModel.loadMorePostsForProfileFeed(userId, callback)
     }
 
     fun createPost(post: Post, imageUri: Uri, callback: () -> Unit) {

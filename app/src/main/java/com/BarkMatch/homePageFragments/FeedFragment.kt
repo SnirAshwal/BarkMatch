@@ -35,7 +35,7 @@ class FeedFragment : Fragment() {
         progressBar = binding.pbFeed
         progressBar?.visibility = View.VISIBLE
 
-        Model.instance.getAllPosts { posts ->
+        Model.instance.getInitialFeedPosts { posts ->
             getPosts(posts)
         }
 
@@ -47,7 +47,7 @@ class FeedFragment : Fragment() {
 
         swipeRefreshLayoutFeed = binding.srlFeed
         swipeRefreshLayoutFeed?.setOnRefreshListener {
-            Model.instance.getAllPosts { posts ->
+            Model.instance.getInitialFeedPosts { posts ->
                 getPosts(posts)
             }
 
@@ -62,7 +62,7 @@ class FeedFragment : Fragment() {
 
         progressBar?.visibility = View.VISIBLE
 
-        Model.instance.getAllPosts { posts ->
+        Model.instance.getInitialFeedPosts { posts ->
             getPosts(posts)
         }
     }
