@@ -16,6 +16,7 @@ import com.BarkMatch.BreedInfoActivity
 import com.BarkMatch.R
 import com.BarkMatch.databinding.FragmentProfilePostBinding
 import com.BarkMatch.models.Model
+import com.BarkMatch.models.Post
 import com.BarkMatch.utils.DialogUtils
 import com.BarkMatch.utils.DialogUtils.ButtonType
 import com.BarkMatch.utils.ImagesUtils
@@ -33,6 +34,7 @@ class ProfilePostFragment : Fragment() {
     private var btnDeletePost: Button? = null
     private var btnEditPost: Button? = null
     private var pbProfilePost: ProgressBar? = null
+    private var post: Post? = null
 
     private var _binding: FragmentProfilePostBinding? = null
     private val binding get() = _binding!!
@@ -66,6 +68,7 @@ class ProfilePostFragment : Fragment() {
 
         Model.instance.getEditPostDetails(postId) { post, fullName, phoneNumber ->
             // Loading details
+            this.post = post
             tvPostUsername?.text = fullName
             tvPostDescription?.text = post.description
             tvPostBreed?.text = post.breedName
@@ -86,7 +89,7 @@ class ProfilePostFragment : Fragment() {
                 DialogUtils.openDialog(
                     requireContext(), "Contact details", """
                         Name: $fullName
-                        
+
                         Phone number: $phoneNumber
                     """.trimIndent()
                 )
@@ -118,7 +121,7 @@ class ProfilePostFragment : Fragment() {
 
             DialogUtils.openDialog(
                 requireContext(),
-                "Contact details",
+                "Delete post",
                 "Are you sure you want to delete this post?",
                 buttonActions
             )
@@ -126,7 +129,13 @@ class ProfilePostFragment : Fragment() {
 
         btnEditPost = binding.btnEditPost
         btnEditPost?.setOnClickListener {
-
+            val action = ProfilePostFragmentDirections.actionProfilePostToEditPost(
+                postId = postId,
+                breed = post?.breedName ?: "",
+                description = post?.description ?: "",
+                imageUrl = post?.image ?: ""
+            )
+            findNavController().navigate(action)
         }
 
         return view

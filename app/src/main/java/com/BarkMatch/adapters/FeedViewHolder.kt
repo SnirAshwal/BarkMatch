@@ -1,6 +1,5 @@
 package com.BarkMatch.adapters
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -14,8 +13,6 @@ import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
 import com.BarkMatch.utils.DialogUtils
 import com.BarkMatch.utils.ImagesUtils
-import com.squareup.picasso.Picasso
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
 class FeedViewHolder(
     itemView: View,

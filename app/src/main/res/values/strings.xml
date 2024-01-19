@@ -65,6 +65,7 @@
     <string name="home_nav_title_create_post">New Post</string>
     <string name="home_nav_title_profile">Profile</string>
     <string name="create_a_post">Create a post</string>
+    <string name="edit_post_title">Edit post</string>
     <string name="description_hint">* Description</string>
     <string name="phone_number_hint">* Phone number</string>
     <string name="create_btn_text">Create</string>
@@ -92,4 +93,5 @@
     <string name="profile_user_name">Username</string>
     <string name="edit_post_btn_text">Edit post</string>
     <string name="delete_post_btn_text">Delete post</string>
+    <string name="edit_btn_text">Edit</string>
 </resources>

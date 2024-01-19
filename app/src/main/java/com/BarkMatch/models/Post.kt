@@ -26,6 +26,13 @@ data class Post(
         breedName: String
     ) : this("", description, "", breedId, breedName, "", Date())
 
+    constructor(
+        id: String,
+        description: String,
+        breedId: Int,
+        breedName: String
+    ) : this(id, description, "", breedId, breedName, "", Date())
+
     companion object {
 
         private const val POST_ID_KEY = "id"
@@ -45,6 +52,14 @@ data class Post(
             val image = json[IMAGE_KEY] as? String ?: ""
             val date = json[CREATION_DATE_KEY] as? Date ?: Date()
             return Post(id, description, ownerId, breedId.toInt(), breedName, image, date)
+        }
+
+        fun getUpdateMap(post: Post): MutableMap<String, Any> {
+            val updates = mutableMapOf<String, Any>()
+            updates[DESCRIPTION_KEY] = post.description
+            updates[BREED_ID_KEY] = post.breedId
+            updates[BREED_NAME_KEY] = post.breedName
+            return updates
         }
     }
 
