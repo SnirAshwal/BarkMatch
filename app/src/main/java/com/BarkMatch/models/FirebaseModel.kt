@@ -496,4 +496,23 @@ class FirebaseModel {
                 callback(false)
             }
     }
+
+    fun editPost(
+        postId: String,
+        breedName: String,
+        breedId: Int,
+        description: String,
+        callback: (Boolean) -> Unit
+    ) {
+        db.collection(POSTS_COLLECTION_PATH).document(postId)
+            .update(Post.getUpdateMap(Post(postId, description, breedId, breedName)))
+            .addOnSuccessListener {
+                Log.i("TAG", "Post with ID $postId updated successfully")
+                callback(true)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("TAG", "Failed to update post with ID $postId, Error: $exception")
+                callback(false)
+            }
+    }
 }

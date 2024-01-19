@@ -97,4 +97,15 @@ class Model private constructor() {
             callback(isSuccess)
         }
     }
+
+    fun editPost(
+        postId: String,
+        breedName: String,
+        breedId: Int,
+        description: String, callback: (Boolean) -> Unit
+    ) {
+        firebaseModel.editPost(postId, breedName, breedId, description) { isSuccess ->
+            callback(isSuccess)
+        }
+    }
 }
