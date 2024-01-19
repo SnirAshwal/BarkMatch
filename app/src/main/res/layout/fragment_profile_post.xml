@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_profile_post"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".homePageFragments.ProfilePostFragment"
-    android:id="@+id/fragment_profile_post">
+    tools:context=".homePageFragments.ProfilePostFragment">
 
     <ImageButton
         android:id="@+id/btnProfilePostBack"
@@ -26,6 +26,19 @@
         android:layout_marginTop="70dp"
         android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toTopOf="@+id/btnEditPost"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/pbProfilePost"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

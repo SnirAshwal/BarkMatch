@@ -65,7 +65,7 @@ class FeedViewHolder(
 
                 imPostContactInfo?.setOnClickListener {
                     DialogUtils.openDialog(
-                        context, """
+                        context, "Contact details", """
                         Name: $fullName
                         
                         Phone number: $phoneNumber

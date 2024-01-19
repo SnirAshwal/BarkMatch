@@ -91,4 +91,10 @@ class Model private constructor() {
             callback(post, fullName, phoneNumber)
         }
     }
+
+    fun deletePost(postId: String, callback: (Boolean) -> Unit) {
+        firebaseModel.deletePost(postId) { isSuccess ->
+            callback(isSuccess)
+        }
+    }
 }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import com.BarkMatch.HomeActivity
 import com.BarkMatch.MainActivity
@@ -479,6 +480,20 @@ class FirebaseModel {
             .addOnFailureListener { e ->
                 // Handle the exception
                 callback(0)
+            }
+    }
+
+    fun deletePost(postId: String, callback: (Boolean) -> Unit) {
+        val postDocumentRef = db.collection(POSTS_COLLECTION_PATH).document(postId)
+
+        postDocumentRef.delete()
+            .addOnSuccessListener {
+                Log.i("TAG", "Post with ID $postId deleted successfully")
+                callback(true)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("TAG", "Failed to delete post with ID $postId, Error: $exception")
+                callback(false)
             }
     }
 }
