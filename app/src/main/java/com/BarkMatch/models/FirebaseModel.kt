@@ -502,10 +502,53 @@ class FirebaseModel {
         breedName: String,
         breedId: Int,
         description: String,
+        imageUri: Uri?,
         callback: (Boolean) -> Unit
     ) {
+        if (imageUri != null) {
+            val userId = auth.currentUser?.uid
+            val timestamp = System.currentTimeMillis()
+
+            uploadImage(imageUri, "images/$userId/posts/post_$timestamp.jpg") { imageUrl ->
+                if (imageUrl != null) {
+                    savePostDetails(
+                        postId,
+                        breedName,
+                        breedId,
+                        description,
+                        imageUrl
+                    ) { isSuccess ->
+                        callback(isSuccess)
+                    }
+                } else {
+                    Log.e("TAG", "Image upload failed")
+                }
+            }
+        } else {
+            savePostDetails(
+                postId,
+                breedName,
+                breedId,
+                description,
+                null
+            ) { isSuccess ->
+                callback(isSuccess)
+            }
+        }
+    }
+
+    private fun savePostDetails(
+        postId: String,
+        breedName: String,
+        breedId: Int,
+        description: String,
+        imageUrl: String?, callback: (Boolean) -> Unit
+    ) {
+        val updateMap = Post.getUpdateMap(Post(postId, description, breedId, breedName))
+        if (imageUrl != null) updateMap[Post.IMAGE_KEY] = imageUrl
+
         db.collection(POSTS_COLLECTION_PATH).document(postId)
-            .update(Post.getUpdateMap(Post(postId, description, breedId, breedName)))
+            .update(updateMap)
             .addOnSuccessListener {
                 Log.i("TAG", "Post with ID $postId updated successfully")
                 callback(true)
@@ -514,5 +557,6 @@ class FirebaseModel {
                 Log.e("TAG", "Failed to update post with ID $postId, Error: $exception")
                 callback(false)
             }
+
     }
 }

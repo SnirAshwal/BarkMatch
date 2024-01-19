@@ -102,9 +102,10 @@ class Model private constructor() {
         postId: String,
         breedName: String,
         breedId: Int,
-        description: String, callback: (Boolean) -> Unit
+        description: String,
+        imageUri: Uri?, callback: (Boolean) -> Unit
     ) {
-        firebaseModel.editPost(postId, breedName, breedId, description) { isSuccess ->
+        firebaseModel.editPost(postId, breedName, breedId, description, imageUri) { isSuccess ->
             callback(isSuccess)
         }
     }
