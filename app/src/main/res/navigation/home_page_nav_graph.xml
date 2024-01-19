@@ -43,6 +43,28 @@
             android:id="@+id/action_profile_to_activityEditProfile"
             app:destination="@id/ActivityEditProfile">
         </action>
+
+        <action
+            android:id="@+id/action_profile_to_profilePost"
+            app:destination="@id/ProfilePostFragment">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/ProfilePostFragment"
+        android:name="com.BarkMatch.homePageFragments.ProfilePostFragment"
+        android:label="Edit post" >
+
+        <action
+            android:id="@+id/ProfilePost_to_profile"
+            app:destination="@id/ProfileFragment">
+        </action>
+
+        <argument
+            android:name="postId"
+            app:argType="string"
+            android:defaultValue=''
+            app:nullable="true"/>
     </fragment>
 
     <activity

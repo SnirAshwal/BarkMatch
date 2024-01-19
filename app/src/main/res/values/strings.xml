@@ -90,4 +90,6 @@
     <string name="post_username">username</string>
     <string name="post_description">description</string>
     <string name="profile_user_name">Username</string>
+    <string name="edit_post_btn_text">Edit post</string>
+    <string name="delete_post_btn_text">Delete post</string>
 </resources>
