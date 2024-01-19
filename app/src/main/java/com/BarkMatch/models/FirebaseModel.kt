@@ -134,7 +134,7 @@ class FirebaseModel {
     }
 
     fun isUserWithEmailExists(email: String, callback: (Boolean) -> Unit) {
-        db.collection("users")
+        db.collection(USERS_COLLECTION_PATH)
             .whereEqualTo("email", email)
             .get()
             .addOnSuccessListener { querySnapshot ->
@@ -320,8 +320,23 @@ class FirebaseModel {
 
     private fun createPostInDB(post: Post, callback: () -> Unit) {
         db.collection(POSTS_COLLECTION_PATH).add(post.json)
-            .addOnSuccessListener {
-                callback()
+            .addOnSuccessListener { documentReference ->
+                // Update the postId in the local Post instance
+                val generatedPostId = documentReference.id
+                post.id = generatedPostId
+
+                // Update the postId in the Firestore document
+                val postDocumentRef =
+                    db.collection(POSTS_COLLECTION_PATH).document(documentReference.id)
+                postDocumentRef.update("id", generatedPostId)
+                    .addOnSuccessListener {
+                        // The postId has been updated in the Firestore document
+                        callback()
+                    }
+                    .addOnFailureListener { e ->
+                        // Handle the failure
+                        callback()
+                    }
             }
             .addOnFailureListener { e ->
                 // handle error
@@ -375,7 +390,7 @@ class FirebaseModel {
         isProfileImageUpdated: Boolean,
         callback: (Boolean) -> Unit
     ) {
-        val userRef: DocumentReference = db.collection("users").document(user.id)
+        val userRef: DocumentReference = db.collection(USERS_COLLECTION_PATH).document(user.id)
         val updates =
             if (isProfileImageUpdated) User.getUpdateMapWithImage(user) else User.getUpdateMap(user)
 
@@ -389,7 +404,7 @@ class FirebaseModel {
     }
 
     fun getUserDetails(userId: String, callback: (User, Int) -> Unit) {
-        val userRef: DocumentReference = db.collection("users").document(userId)
+        val userRef: DocumentReference = db.collection(USERS_COLLECTION_PATH).document(userId)
         userRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
@@ -412,8 +427,28 @@ class FirebaseModel {
             }
     }
 
+    fun getEditPostDetails(postId: String, callback: (Post, String, String) -> Unit) {
+        val postReference = db.collection(POSTS_COLLECTION_PATH).document(postId)
+        postReference.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()) {
+                val post = documentSnapshot.toObject(Post::class.java)
+                if (post != null) {
+                    getUserContactDetails(post.ownerId) { phoneNumber, fullName ->
+                        callback(post, fullName, phoneNumber)
+                    }
+                } else {
+                    callback(Post(), "", "")
+                }
+            } else {
+                callback(Post(), "", "")
+            }
+        }.addOnFailureListener { e ->
+            callback(Post(), "", "")
+        }
+    }
+
     fun getUserContactDetails(userId: String, callback: (String, String) -> Unit) {
-        val userRef: DocumentReference = db.collection("users").document(userId)
+        val userRef: DocumentReference = db.collection(USERS_COLLECTION_PATH).document(userId)
         userRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
@@ -434,7 +469,7 @@ class FirebaseModel {
     }
 
     private fun getPostCountForUser(userId: String, callback: (Int) -> Unit) {
-        db.collection("posts")
+        db.collection(POSTS_COLLECTION_PATH)
             .whereEqualTo("ownerId", userId)
             .get()
             .addOnSuccessListener { querySnapshot ->

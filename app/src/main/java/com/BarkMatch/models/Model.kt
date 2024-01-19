@@ -85,4 +85,10 @@ class Model private constructor() {
             callback(isSuccess)
         }
     }
+
+    fun getEditPostDetails(postId: String, callback: (Post, String, String) -> Unit) {
+        firebaseModel.getEditPostDetails(postId) { post, fullName, phoneNumber ->
+            callback(post, fullName, phoneNumber)
+        }
+    }
 }

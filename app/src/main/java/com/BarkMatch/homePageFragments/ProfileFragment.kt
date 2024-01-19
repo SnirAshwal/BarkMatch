@@ -120,11 +120,6 @@ class ProfileFragment : Fragment() {
         return view;
     }
 
-    interface OnItemClickListener {
-        fun onItemClick(position: Int)
-        fun onPostClicked(post: Post?)
-    }
-
     override fun onResume() {
         super.onResume()
         auth.currentUser?.uid?.let {

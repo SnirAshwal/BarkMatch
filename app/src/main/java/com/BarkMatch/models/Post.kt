@@ -9,7 +9,7 @@ import java.util.Date
 @Entity
 data class Post(
     @PrimaryKey(autoGenerate = false)
-    val id: String,
+    var id: String,
     val description: String,
     var ownerId: String,
     val breedId: Int,
@@ -17,6 +17,9 @@ data class Post(
     var image: String,
     @TypeConverters(DateConverter::class) val creationDate: Date
 ) {
+
+    constructor() : this("", 0, "")
+
     constructor(
         description: String,
         breedId: Int,
@@ -25,6 +28,7 @@ data class Post(
 
     companion object {
 
+        private const val POST_ID_KEY = "id"
         const val DESCRIPTION_KEY = "description"
         const val OWNER_ID_KEY = "ownerId"
         const val BREED_ID_KEY = "breedId"
@@ -33,13 +37,14 @@ data class Post(
         const val CREATION_DATE_KEY = "creationDate"
 
         fun fromJSON(json: Map<String, Any>): Post {
+            val id = json[POST_ID_KEY] as? String ?: ""
             val description = json[DESCRIPTION_KEY] as? String ?: ""
             val ownerId = json[OWNER_ID_KEY] as? String ?: ""
             val breedId = json[BREED_ID_KEY] as? Long ?: 0
             val breedName = json[BREED_NAME_KEY] as? String ?: ""
             val image = json[IMAGE_KEY] as? String ?: ""
             val date = json[CREATION_DATE_KEY] as? Date ?: Date()
-            return Post("", description, ownerId, breedId.toInt(), breedName, image, date)
+            return Post(id, description, ownerId, breedId.toInt(), breedName, image, date)
         }
     }
 

@@ -12,6 +12,7 @@ import com.BarkMatch.BreedInfoActivity
 import com.BarkMatch.R
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
+import com.BarkMatch.utils.DialogUtils
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
@@ -67,19 +68,13 @@ class FeedViewHolder(
                 tvPostUsername?.text = fullName
 
                 imPostContactInfo?.setOnClickListener {
-                    val alertDialogBuilder = AlertDialog.Builder(context)
-                    alertDialogBuilder.setTitle("Contact details")
-                    alertDialogBuilder.setMessage("""
+                    DialogUtils.openDialog(
+                        context, """
                         Name: $fullName
                         
                         Phone number: $phoneNumber
-                    """.trimIndent())
-                    alertDialogBuilder.setPositiveButton("OK") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-
-                    val alertDialog = alertDialogBuilder.create()
-                    alertDialog.show()
+                    """.trimIndent()
+                    )
                 }
             }
         }

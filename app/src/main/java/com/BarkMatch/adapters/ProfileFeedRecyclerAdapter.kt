@@ -8,9 +8,9 @@ import com.BarkMatch.homePageFragments.ProfileFragment
 import com.BarkMatch.models.Post
 import com.google.firebase.firestore.DocumentSnapshot
 
-class ProfileFeedRecyclerAdapter(var posts: MutableList<Post>?) : RecyclerView.Adapter<ProfileFeedViewHolder>() {
+class ProfileFeedRecyclerAdapter(var posts: MutableList<Post>?) :
+    RecyclerView.Adapter<ProfileFeedViewHolder>() {
 
-    private var listener: ProfileFragment.OnItemClickListener? = null
     companion object {
         const val PROFILE_PAGE_SIZE = 10L
         var isLoading = false
@@ -23,7 +23,7 @@ class ProfileFeedRecyclerAdapter(var posts: MutableList<Post>?) : RecyclerView.A
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfileFeedViewHolder {
         val itemView =
             LayoutInflater.from(parent.context).inflate(R.layout.profile_post_layout, parent, false)
-        return ProfileFeedViewHolder(itemView, listener, posts)
+        return ProfileFeedViewHolder(itemView, posts)
     }
 
     override fun onBindViewHolder(holder: ProfileFeedViewHolder, position: Int) {
