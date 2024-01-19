@@ -23,8 +23,6 @@ import com.BarkMatch.models.Post
 import com.BarkMatch.utils.ImagesUtils
 import com.BarkMatch.utils.SnackbarUtils
 import com.BarkMatch.utils.Validations
-import com.squareup.picasso.Picasso
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -54,7 +52,7 @@ class CreatePostFragment : Fragment() {
 
         imageView = view.findViewById(R.id.ivCreatePostImg);
         imageView?.setOnClickListener {
-            openFileChooser()
+            pickImageLauncher.launch("image/*")
         }
 
         etDescription = view.findViewById(R.id.etCreatePostDescription)
@@ -128,9 +126,5 @@ class CreatePostFragment : Fragment() {
         }
 
         return view
-    }
-
-    private fun openFileChooser() {
-        pickImageLauncher.launch("image/*")
     }
 }

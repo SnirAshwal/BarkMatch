@@ -26,7 +26,7 @@ class HomeActivity : AppCompatActivity() {
         navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
 
         navController?.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.ProfilePostFragment) {
+            if (destination.id == R.id.ProfilePostFragment || destination.id == R.id.EditPostFragment) {
                 bottomNavigationView.visibility = View.GONE
             } else {
                 bottomNavigationView.visibility = View.VISIBLE

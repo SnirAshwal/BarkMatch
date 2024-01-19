@@ -1,5 +1,6 @@
 package com.BarkMatch.homePageFragments
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Spinner
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -36,7 +38,14 @@ class EditPostFragment : Fragment() {
     private var spinnerEditPostBreed: Spinner? = null
     private var btnEditPost: Button? = null
     private var pbEditPost: ProgressBar? = null
+    private var selectedImageUri: Uri? = null
     private var dogsInfo: List<DogInfo>? = null
+
+    private val pickImageLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            ivEditPostImg?.let { ImagesUtils.loadImage(uri, it) }
+            selectedImageUri = uri
+        }
 
     private var _binding: FragmentEditPostBinding? = null
     private val binding get() = _binding!!
@@ -62,7 +71,14 @@ class EditPostFragment : Fragment() {
         }
 
         ivEditPostImg = binding.ivEditPostImg
+        ivEditPostImg?.setOnClickListener {
+            pickImageLauncher.launch("image/*")
+        }
+        ImagesUtils.loadImage(imageUrl, ivEditPostImg!!)
+
         etEditPostDescription = binding.etEditPostDescription
+        etEditPostDescription?.setText(description)
+
         spinnerEditPostBreed = binding.spinnerEditPostBreed
 
         apiService = RetrofitClient.getClient().create(ApiService::class.java)
@@ -104,9 +120,6 @@ class EditPostFragment : Fragment() {
             })
         }
 
-        etEditPostDescription?.setText(description)
-        ImagesUtils.loadImage(imageUrl, ivEditPostImg!!)
-
         btnEditPost = binding.btnEditPost
         btnEditPost?.setOnClickListener {
             // Validations
@@ -126,11 +139,13 @@ class EditPostFragment : Fragment() {
 
             pbEditPost?.visibility = View.VISIBLE
 
+            // Editing the post
             Model.instance.editPost(
                 postId,
                 spinnerEditPostBreed?.selectedItem.toString(),
                 breedId ?: 0,
-                etEditPostDescription?.text.toString()
+                etEditPostDescription?.text.toString(),
+                selectedImageUri
             ) { isSuccess ->
                 if (isSuccess) {
                     // Going back to post profile
