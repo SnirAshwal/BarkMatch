@@ -19,6 +19,7 @@ import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter.Companion.PROFILE_PAGE_
 import com.BarkMatch.databinding.FragmentProfileBinding
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
+import com.BarkMatch.utils.ImagesUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
@@ -158,12 +159,7 @@ class ProfileFragment : Fragment() {
             tvPosts?.text = postCount.toString()
 
             if (user.profileImage.isNotEmpty()) {
-                Picasso.get()
-                    .load(user.profileImage)
-                    .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
-                    .fit()
-                    .centerCrop()
-                    .into(imgProfileImage)
+                imgProfileImage?.let { ImagesUtils.loadImage(user.profileImage, it) }
             }
 
             userFirstName = user.firstName

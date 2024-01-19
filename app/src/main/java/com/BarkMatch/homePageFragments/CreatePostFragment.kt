@@ -20,6 +20,7 @@ import com.BarkMatch.api.DogInfo
 import com.BarkMatch.api.RetrofitClient
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
+import com.BarkMatch.utils.ImagesUtils
 import com.BarkMatch.utils.SnackbarUtils
 import com.BarkMatch.utils.Validations
 import com.squareup.picasso.Picasso
@@ -40,12 +41,7 @@ class CreatePostFragment : Fragment() {
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            Picasso.get()
-                .load(uri)
-                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
-                .fit()
-                .centerCrop()
-                .into(imageView)
+            imageView?.let { ImagesUtils.loadImage(uri, it) }
             selectedImageUri = uri
         }
 

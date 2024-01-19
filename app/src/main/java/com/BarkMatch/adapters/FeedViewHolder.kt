@@ -13,6 +13,7 @@ import com.BarkMatch.R
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
 import com.BarkMatch.utils.DialogUtils
+import com.BarkMatch.utils.ImagesUtils
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
@@ -47,12 +48,7 @@ class FeedViewHolder(
 
         if (post?.image?.isEmpty() == false) {
             // Loading post img
-            Picasso.get()
-                .load(post.image)
-                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
-                .fit()
-                .centerCrop()
-                .into(ivPostImage)
+            ivPostImage?.let { ImagesUtils.loadImage(post.image, it) }
         }
 
         imPostBreedInfo?.setOnClickListener {

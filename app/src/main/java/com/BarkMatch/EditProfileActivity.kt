@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.BarkMatch.databinding.ActivityEditProfileBinding
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.User
+import com.BarkMatch.utils.ImagesUtils
 import com.BarkMatch.utils.SnackbarUtils
 import com.BarkMatch.utils.Validations
 import com.squareup.picasso.Picasso
@@ -35,12 +36,7 @@ class EditProfileActivity : AppCompatActivity() {
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            Picasso.get()
-                .load(uri)
-                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
-                .fit()
-                .centerCrop()
-                .into(ivEditProfileImg)
+            ivEditProfileImg?.let { ImagesUtils.loadImage(uri, it) }
             selectedImageUri = uri
         }
 
@@ -139,12 +135,7 @@ class EditProfileActivity : AppCompatActivity() {
         val userProfileImageUrl =
             intent?.extras?.let { EditProfileActivityArgs.fromBundle(it).profileImage } ?: ""
         if (userProfileImageUrl.isNotEmpty()) {
-            Picasso.get()
-                .load(userProfileImageUrl)
-                .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
-                .fit()
-                .centerCrop()
-                .into(ivEditProfileImg)
+            ivEditProfileImg?.let { ImagesUtils.loadImage(userProfileImageUrl, it) }
         }
     }
 }

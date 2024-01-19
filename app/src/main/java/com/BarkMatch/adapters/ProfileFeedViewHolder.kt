@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.BarkMatch.R
 import com.BarkMatch.homePageFragments.ProfileFragmentDirections
 import com.BarkMatch.models.Post
+import com.BarkMatch.utils.ImagesUtils
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
@@ -24,12 +25,7 @@ class ProfileFeedViewHolder(
 
     fun bind(post: Post?) {
         this.post = post
-        Picasso.get()
-            .load(post?.image)
-            .transform(RoundedCornersTransformation(50, 0)) // Make the image corners round
-            .fit()
-            .centerCrop()
-            .into(ivProfilePostImage)
+        ivProfilePostImage?.let { ImagesUtils.loadImage(post?.image ?: "", it) }
 
         ivProfilePostImage?.setOnClickListener {
             val action = ProfileFragmentDirections.actionProfileToProfilePost(post?.id)

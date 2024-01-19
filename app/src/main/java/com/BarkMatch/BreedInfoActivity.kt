@@ -13,6 +13,7 @@ import com.BarkMatch.api.DogImageInfo
 import com.BarkMatch.api.DogInfo
 import com.BarkMatch.api.RetrofitClient
 import com.BarkMatch.databinding.ActivityBreedInfoBinding
+import com.BarkMatch.utils.ImagesUtils
 import com.google.android.material.imageview.ShapeableImageView
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
@@ -136,12 +137,7 @@ class BreedInfoActivity : AppCompatActivity() {
                 if (response.isSuccessful) {
                     val dogImageInfo: DogImageInfo? = response.body()
                     if (dogImageInfo != null) {
-                        Picasso.get()
-                            .load(dogImageInfo.url)
-                            .transform(RoundedCornersTransformation(50,0)) // Make the image corners round
-                            .fit()
-                            .centerCrop()
-                            .into(ivBreedImage)
+                        ivBreedImage?.let { ImagesUtils.loadImage(dogImageInfo.url, it) }
                     }
 
                 } else {
