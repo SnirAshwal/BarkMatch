@@ -21,8 +21,6 @@ import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
 import com.BarkMatch.utils.ImagesUtils
 import com.google.firebase.auth.FirebaseAuth
-import com.squareup.picasso.Picasso
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
 class ProfileFragment : Fragment() {
 
@@ -54,6 +52,7 @@ class ProfileFragment : Fragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
 
+        view.visibility = View.GONE
         progressBar = binding.pbProfileFeed
         progressBar?.visibility = View.VISIBLE
 
@@ -148,6 +147,7 @@ class ProfileFragment : Fragment() {
 
         adapter?.notifyDataSetChanged()
 
+        view?.visibility = View.VISIBLE
         progressBar?.visibility = View.GONE
     }
 
