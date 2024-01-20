@@ -19,17 +19,19 @@ class Model private constructor() {
     }
 
     fun registerUser(
-        context: FragmentActivity, view: View,
-        email: String, password: String, newUser: User, imageUri: Uri?
+        email: String,
+        password: String,
+        newUser: User,
+        imageUri: Uri?, callback: (Boolean) -> Unit
     ) {
         firebaseModel.registerUser(
-            context,
-            view,
             email,
             password,
             newUser,
             imageUri
-        )
+        ) { isSuccess ->
+            callback(isSuccess)
+        }
     }
 
     fun logoutUser(context: Activity) {
