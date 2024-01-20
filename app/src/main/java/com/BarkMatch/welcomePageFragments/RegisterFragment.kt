@@ -1,6 +1,5 @@
 package com.BarkMatch.welcomePageFragments
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -130,9 +129,9 @@ class RegisterFragment : Fragment() {
                     ) { isSuccess ->
                         if (isSuccess) {
                             // User data saved successfully - moving to feed
-                            val intent = Intent(context, HomeActivity::class.java)
-                            context?.startActivity(intent)
-                            (context as Activity).finish()
+                            val intent = Intent(requireContext(), HomeActivity::class.java)
+                            startActivity(intent)
+                            requireActivity().finish()
                         } else {
                             SnackbarUtils.showSnackbar(view, "Registration failed")
                         }

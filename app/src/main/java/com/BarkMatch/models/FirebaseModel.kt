@@ -5,14 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.view.View
-import com.BarkMatch.HomeActivity
 import com.BarkMatch.MainActivity
 import com.BarkMatch.adapters.FeedRecyclerAdapter
+import com.BarkMatch.adapters.FeedRecyclerAdapter.Companion.FEED_PAGE_SIZE
 import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter
 import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter.Companion.PROFILE_PAGE_SIZE
-import com.BarkMatch.adapters.FeedRecyclerAdapter.Companion.FEED_PAGE_SIZE
-import com.BarkMatch.utils.SnackbarUtils
+import com.BarkMatch.interfaces.AuthenticationCallback
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
@@ -51,17 +49,17 @@ class FirebaseModel {
         storageRef = storage!!.reference
     }
 
-    fun loginUser(context: Context, view: View, email: String, password: String) {
+    fun loginUser(
+        email: String,
+        password: String,
+        authenticationCallback: AuthenticationCallback,
+        callback: (Boolean) -> Unit
+    ) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(executor) { task ->
-                if (task.isSuccessful) {
-                    // Login successful - moving to feed
-                    val intent = Intent(context, HomeActivity::class.java)
-                    context.startActivity(intent)
-                    (context as Activity).finish()
-                } else {
-                    SnackbarUtils.showSnackbar(view, "Incorrect email or password")
-                }
+                if (task.isSuccessful) authenticationCallback.onSuccess()
+                else authenticationCallback.onFailure()
+                callback(task.isSuccessful)
             }
     }
 
