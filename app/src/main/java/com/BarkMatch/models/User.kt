@@ -2,6 +2,9 @@ package com.BarkMatch.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.BarkMatch.utils.DateConverter
+import java.util.Date
 
 @Entity
 data class User(
@@ -12,7 +15,9 @@ data class User(
     var profileImage: String,
     val phoneNumber: String,
     val description: String,
-    val email: String
+    val email: String,
+    @TypeConverters(DateConverter::class) val creationDate: Date?,
+    @TypeConverters(DateConverter::class) val updatedAt: Date?
 ) {
 
     constructor() : this("", "", "", "", "")
@@ -23,14 +28,14 @@ data class User(
         phoneNumber: String,
         description: String,
         email: String
-    ) : this("", firstName, lastName, "", phoneNumber, description, email)
+    ) : this("", firstName, lastName, "", phoneNumber, description, email, Date(), null)
 
     constructor(
         firstName: String,
         lastName: String,
         phoneNumber: String,
         description: String,
-    ) : this("", firstName, lastName, "", phoneNumber, description, "")
+    ) : this("", firstName, lastName, "", phoneNumber, description, "", null, null)
 
     companion object {
 
@@ -39,6 +44,7 @@ data class User(
         private const val DESCRIPTION_KEY = "description"
         private const val PHONE_NUMBER_KEY = "phoneNumber"
         private const val PROFILE_IMAGE_KEY = "profileImage"
+        private const val UPDATED_AT_KEY = "updatedAt"
 
         fun getUpdateMapWithImage(user: User): MutableMap<String, Any> {
             val updates = mutableMapOf<String, Any>()
@@ -47,6 +53,7 @@ data class User(
             updates[DESCRIPTION_KEY] = user.description
             updates[PHONE_NUMBER_KEY] = user.phoneNumber
             updates[PROFILE_IMAGE_KEY] = user.profileImage
+            updates[UPDATED_AT_KEY] = Date()
             return updates
         }
 
@@ -56,6 +63,7 @@ data class User(
             updates[LAST_NAME_KEY] = user.lastName
             updates[DESCRIPTION_KEY] = user.description
             updates[PHONE_NUMBER_KEY] = user.phoneNumber
+            updates[UPDATED_AT_KEY] = Date()
             return updates
         }
     }

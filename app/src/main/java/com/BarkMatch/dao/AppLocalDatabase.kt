@@ -9,7 +9,7 @@ import com.BarkMatch.models.Post
 import com.BarkMatch.utils.DateConverter
 
 
-@Database(entities = [Post::class], version = 5)
+@Database(entities = [Post::class], version = 6)
 @TypeConverters(DateConverter::class)
 abstract class AppLocalDbRepository : RoomDatabase() {
     abstract fun postDao(): PostDao

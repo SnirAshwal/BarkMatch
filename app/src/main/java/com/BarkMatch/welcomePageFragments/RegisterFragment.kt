@@ -1,5 +1,7 @@
 package com.BarkMatch.welcomePageFragments
 
+import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,17 +11,17 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation.findNavController
-import com.BarkMatch.R
+import com.BarkMatch.HomeActivity
+import com.BarkMatch.databinding.FragmentRegisterBinding
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.User
 import com.BarkMatch.utils.ImagesUtils
 import com.BarkMatch.utils.SnackbarUtils
 import com.BarkMatch.utils.Validations
-import com.squareup.picasso.Picasso
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
 class RegisterFragment : Fragment() {
 
@@ -32,6 +34,7 @@ class RegisterFragment : Fragment() {
     private var etPhoneNumber: EditText? = null
     private var registerBtn: Button? = null
     private var selectedImageUri: Uri? = null
+    private var pbRegister: ProgressBar? = null
 
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -39,30 +42,36 @@ class RegisterFragment : Fragment() {
             selectedImageUri = uri
         }
 
+    private var _binding: FragmentRegisterBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_register, container, false)
+    ): View {
+        _binding = FragmentRegisterBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        val backButton: ImageButton = view.findViewById(R.id.btnRegisterBack)
+        pbRegister = binding.pbRegister
+
+        val backButton: ImageButton = binding.btnRegisterBack
         backButton.setOnClickListener {
             findNavController(view).popBackStack()
         }
 
-        imageView = view.findViewById(R.id.ivRegisterProfileImg);
+        imageView = binding.ivRegisterProfileImg
         imageView?.setOnClickListener {
-            openFileChooser()
+            pickImageLauncher.launch("image/*")
         }
 
-        etFirstName = view.findViewById(R.id.etRegisterFirstName)
-        etLastName = view.findViewById(R.id.etRegisterLastName)
-        etEmail = view.findViewById(R.id.etRegisterEmail)
-        etPassword = view.findViewById(R.id.etRegisterPassword)
-        etDescription = view.findViewById(R.id.etRegisterDescription)
-        etPhoneNumber = view.findViewById(R.id.etRegisterPhoneNumber)
+        etFirstName = binding.etRegisterFirstName
+        etLastName = binding.etRegisterLastName
+        etEmail = binding.etRegisterEmail
+        etPassword = binding.etRegisterPassword
+        etDescription = binding.etRegisterDescription
+        etPhoneNumber = binding.etRegisterPhoneNumber
 
-        registerBtn = view.findViewById(R.id.btnRegister)
+        registerBtn = binding.btnRegister
         registerBtn?.setOnClickListener {
             // Validations
             if (!Validations.isEmailValid(etEmail?.text.toString())) {
@@ -98,6 +107,9 @@ class RegisterFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            pbRegister?.visibility = View.VISIBLE
+
+            // Register user
             Model.instance.isUserWithEmailExists(etEmail?.text.toString()) { userExists ->
                 if (userExists) {
                     SnackbarUtils.showSnackbar(view, "User with this email already exists")
@@ -110,25 +122,27 @@ class RegisterFragment : Fragment() {
                         etEmail?.text.toString()
                     )
 
-                    // Register
-                    activity?.let { context ->
-                        Model.instance.registerUser(
-                            context,
-                            view,
-                            etEmail?.text.toString(),
-                            etPassword?.text.toString(),
-                            newUser,
-                            selectedImageUri
-                        )
+                    Model.instance.registerUser(
+                        etEmail?.text.toString(),
+                        etPassword?.text.toString(),
+                        newUser,
+                        selectedImageUri
+                    ) { isSuccess ->
+                        if (isSuccess) {
+                            // User data saved successfully - moving to feed
+                            val intent = Intent(context, HomeActivity::class.java)
+                            context?.startActivity(intent)
+                            (context as Activity).finish()
+                        } else {
+                            SnackbarUtils.showSnackbar(view, "Registration failed")
+                        }
                     }
                 }
+
+                pbRegister?.visibility = View.GONE
             }
         }
 
         return view
-    }
-
-    private fun openFileChooser() {
-        pickImageLauncher.launch("image/*")
     }
 }

@@ -66,12 +66,10 @@ class FirebaseModel {
     }
 
     fun registerUser(
-        context: Context,
-        view: View,
         email: String,
         password: String,
         newUser: User,
-        imageUri: Uri?
+        imageUri: Uri?, callback: (Boolean) -> Unit
     ) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task: Task<AuthResult?> ->
@@ -80,57 +78,66 @@ class FirebaseModel {
                     val userId = user?.uid
 
                     // Save additional fields to FireStore
-                    saveUserDetailsToFireStore(
-                        context,
+                    saveUserDetailsToDB(
                         userId,
                         newUser,
                         imageUri
-                    )
+                    ) { isSuccess ->
+                        callback(isSuccess)
+                    }
                 } else {
-                    SnackbarUtils.showSnackbar(view, "Registration failed")
+                    Log.e(
+                        "TAG",
+                        "Failed to save user credentials in firestore authentication for user with email ${newUser.email}"
+                    )
+                    callback(false)
                 }
             }
     }
 
-    private fun saveUserDetailsToFireStore(
-        context: Context,
+    private fun saveUserDetailsToDB(
         userId: String?,
         newUser: User,
-        imageUri: Uri?
+        imageUri: Uri?, callback: (Boolean) -> Unit
     ) {
         if (userId != null) {
+            newUser.id = userId
+
             if (imageUri != null) {
                 val timestamp = System.currentTimeMillis()
                 uploadImage(imageUri, "images/$userId/profile/profile_$timestamp.jpg") { imageUrl ->
                     if (imageUrl != null) {
                         newUser.profileImage = imageUrl
-                        newUser.id = userId
-                        saveUserInDB(context, userId, newUser)
+                        saveUserInDB(userId, newUser) { isSuccess ->
+                            callback(isSuccess)
+                        }
                     } else {
-                        // Handle the case where image upload failed
-                        println("Image upload failed")
+                        Log.e(
+                            "TAG",
+                            "Failed to upload user profile image for user with email ${newUser.email}"
+                        )
                     }
                 }
             } else {
-                saveUserInDB(context, userId, newUser)
+                saveUserInDB(userId, newUser) { isSuccess ->
+                    callback(isSuccess)
+                }
             }
         }
     }
 
     private fun saveUserInDB(
-        context: Context,
         userId: String,
-        newUser: User
+        newUser: User, callback: (Boolean) -> Unit
     ) {
         db.collection(USERS_COLLECTION_PATH).document(userId).set(newUser)
             .addOnSuccessListener {
-                // User data saved successfully - moving to feed
-                val intent = Intent(context, HomeActivity::class.java)
-                context.startActivity(intent)
-                (context as Activity).finish()
+                Log.e("TAG", "Crated user with email ${newUser.email} successfully")
+                callback(true)
             }
             .addOnFailureListener { e ->
-                // Handle failure
+                Log.e("TAG", "Failed to save user in DB", e)
+                callback(false)
             }
     }
 
@@ -139,12 +146,11 @@ class FirebaseModel {
             .whereEqualTo("email", email)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                // Check if any documents match the query
                 val isUserExists = !querySnapshot.isEmpty
                 callback(isUserExists)
             }
             .addOnFailureListener { e ->
-                // Handle the exception or error during the operation
+                Log.e("TAG", "Failed to get if user exists", e)
                 callback(false)
             }
     }
