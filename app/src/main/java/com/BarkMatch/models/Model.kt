@@ -2,9 +2,7 @@ package com.BarkMatch.models
 
 import android.app.Activity
 import android.net.Uri
-import android.view.View
-import androidx.fragment.app.FragmentActivity
-import com.google.firebase.firestore.DocumentSnapshot
+import com.BarkMatch.interfaces.AuthenticationCallback
 
 class Model private constructor() {
 
@@ -14,8 +12,15 @@ class Model private constructor() {
         val instance: Model = Model()
     }
 
-    fun loginUser(context: Activity, view: View, email: String, password: String) {
-        firebaseModel.loginUser(context, view, email, password)
+    fun loginUser(
+        email: String,
+        password: String,
+        authenticationCallback: AuthenticationCallback,
+        callback: (Boolean) -> Unit
+    ) {
+        firebaseModel.loginUser(email, password, authenticationCallback) { isSuccess ->
+            callback(isSuccess)
+        }
     }
 
     fun registerUser(

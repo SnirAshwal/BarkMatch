@@ -2,16 +2,19 @@ package com.BarkMatch.welcomePageFragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation.findNavController
 import com.BarkMatch.HomeActivity
-import com.BarkMatch.R
+import com.BarkMatch.databinding.FragmentLoginBinding
+import com.BarkMatch.interfaces.AuthenticationCallback
 import com.BarkMatch.models.Model
 import com.BarkMatch.utils.SnackbarUtils
 import com.BarkMatch.utils.Validations
@@ -21,24 +24,30 @@ class LoginFragment : Fragment() {
     private var etEmail: EditText? = null
     private var etPassword: EditText? = null
     private var loginBtn: Button? = null
+    private var pbLogin: ProgressBar? = null
+
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_login, container, false)
+    ): View {
+        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        val backButton: ImageButton = view.findViewById(R.id.btnLoginBack)
+        val backButton: ImageButton = binding.btnLoginBack
         backButton.setOnClickListener {
             findNavController(view).popBackStack()
         }
 
-        etEmail = view.findViewById(R.id.etLoginEmail)
-        etPassword = view.findViewById(R.id.etLoginPassword)
+        pbLogin = binding.pbLogin
+        etEmail = binding.etLoginEmail
+        etPassword = binding.etLoginPassword
 
-        loginBtn = view.findViewById(R.id.btnLogin)
+        loginBtn = binding.btnLogin
         loginBtn?.setOnClickListener {
-            // validations
+            // Validations
             if (!Validations.isEmailValid(etEmail?.text.toString())) {
                 SnackbarUtils.showSnackbar(view, "Invalid email address")
                 return@setOnClickListener
@@ -52,13 +61,31 @@ class LoginFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            activity?.let { context ->
-                Model.instance.loginUser(
-                    context,
-                    view,
-                    etEmail?.text.toString(),
-                    etPassword?.text.toString()
+            pbLogin?.visibility = View.VISIBLE
+
+            Model.instance.loginUser(
+                etEmail?.text.toString(),
+                etPassword?.text.toString(),
+                object : AuthenticationCallback {
+                    override fun onSuccess() {
+                        val intent = Intent(requireContext(), HomeActivity::class.java)
+                        startActivity(intent)
+                        requireActivity().finish()
+                    }
+
+                    override fun onFailure() {
+                        requireActivity().runOnUiThread {
+                            SnackbarUtils.showSnackbar(requireView(), "Incorrect email or password")
+                            pbLogin?.visibility = View.GONE
+                        }
+                    }
+                }
+            ) { isSuccess ->
+                if (isSuccess) Log.i(
+                    "TAG",
+                    "login successful for user with email ${etEmail?.text.toString()}"
                 )
+                else Log.e("TAG", "login failed for user with email ${etEmail?.text.toString()}")
             }
         }
 
