@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:227957205384:android:fb8e09db77a93de32db23d",
+        "mobilesdk_app_id": "1:227957205384:android:917194ac86be06d52db23d",
         "android_client_info": {
-          "package_name": "com.BarkMatch"
+          "package_name": "com.barkMatch"
         }
       },
       "oauth_client": [],
