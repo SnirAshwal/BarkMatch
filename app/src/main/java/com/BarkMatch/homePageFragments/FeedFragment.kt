@@ -1,17 +1,16 @@
 package com.BarkMatch.homePageFragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.BarkMatch.adapters.FeedRecyclerAdapter
-import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter
 import com.BarkMatch.databinding.FragmentFeedBinding
 import com.BarkMatch.models.Model
 import com.BarkMatch.models.Post
@@ -87,20 +86,18 @@ class FeedFragment : Fragment() {
     }
 
     private fun addPosts(posts: MutableList<Post>) {
+        val startPosition = this.posts?.size ?: 0
         this.posts?.addAll(posts)
-        adapter?.posts = this.posts
-
-        adapter?.notifyDataSetChanged()
-
+        adapter?.notifyItemRangeInserted(startPosition, posts.size)
         progressBar?.visibility = View.GONE
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun getPosts(posts: MutableList<Post>) {
         this.posts = posts
         adapter?.posts = posts
-
         adapter?.notifyDataSetChanged()
-
+        view?.visibility = View.VISIBLE
         progressBar?.visibility = View.GONE
     }
 }

@@ -117,7 +117,7 @@ class ProfileFragment : Fragment() {
             swipeRefreshLayoutFeed?.isRefreshing = false
         }
 
-        return view;
+        return view
     }
 
     override fun onResume() {
@@ -133,20 +133,17 @@ class ProfileFragment : Fragment() {
     }
 
     private fun addPosts(posts: MutableList<Post>) {
+        val startPosition = this.posts?.size ?: 0
         this.posts?.addAll(posts)
-        adapter?.posts = this.posts
-
-        adapter?.notifyDataSetChanged()
-
+        adapter?.notifyItemRangeInserted(startPosition, posts.size)
         progressBar?.visibility = View.GONE
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun getPosts(posts: MutableList<Post>) {
         this.posts = posts
         adapter?.posts = posts
-
         adapter?.notifyDataSetChanged()
-
         view?.visibility = View.VISIBLE
         progressBar?.visibility = View.GONE
     }
