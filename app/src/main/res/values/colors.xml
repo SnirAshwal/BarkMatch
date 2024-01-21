@@ -4,4 +4,6 @@
     <color name="white">#FFFFFFFF</color>
     <color name="red">#BD3434</color>
     <color name="light_grey">#EAEAEA</color>
+    <color name="snackbarBackgroundTint">#FF000000</color>
+    <color name="snackbarTextColor">#FFFFFFFF</color>
 </resources>
