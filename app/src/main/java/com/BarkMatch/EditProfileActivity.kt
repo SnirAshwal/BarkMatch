@@ -1,5 +1,6 @@
 package com.BarkMatch
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -16,8 +17,6 @@ import com.BarkMatch.models.User
 import com.BarkMatch.utils.ImagesUtils
 import com.BarkMatch.utils.SnackbarUtils
 import com.BarkMatch.utils.Validations
-import com.squareup.picasso.Picasso
-import jp.wasabeef.picasso.transformations.RoundedCornersTransformation
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -107,7 +106,12 @@ class EditProfileActivity : AppCompatActivity() {
         }
 
         btnLogout?.setOnClickListener {
-            Model.instance.logoutUser(this)
+            Model.instance.logoutUser {
+                // Go back to the welcome page
+                val intent = Intent(view.context, MainActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
 
         initUserDetails()

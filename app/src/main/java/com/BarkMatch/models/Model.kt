@@ -1,6 +1,5 @@
 package com.BarkMatch.models
 
-import android.app.Activity
 import android.net.Uri
 import com.BarkMatch.interfaces.AuthenticationCallback
 
@@ -39,11 +38,16 @@ class Model private constructor() {
         }
     }
 
-    fun logoutUser(context: Activity) {
-        firebaseModel.logoutUser(context)
+    fun logoutUser(callback: (Boolean) -> Unit) {
+        firebaseModel.logoutUser { isSuccess ->
+            callback(isSuccess)
+        }
     }
 
-    fun isUserWithEmailExists(email: String, callback: (Boolean) -> Unit) {
+    fun isUserWithEmailExists(
+        email: String,
+        callback: (Boolean) -> Unit
+    ) {
         firebaseModel.isUserWithEmailExists(email) { isUserExists ->
             callback(isUserExists)
         }
@@ -71,35 +75,55 @@ class Model private constructor() {
         firebaseModel.loadMorePostsForProfileFeed(userId, callback)
     }
 
-    fun createPost(post: Post, imageUri: Uri, callback: () -> Unit) {
+    fun createPost(
+        post: Post,
+        imageUri: Uri,
+        callback: () -> Unit
+    ) {
         firebaseModel.createPost(post, imageUri, callback)
     }
 
-    fun getUserDetails(userId: String, callback: (User, Int) -> Unit) {
+    fun getUserDetails(
+        userId: String,
+        callback: (User, Int) -> Unit
+    ) {
         firebaseModel.getUserDetails(userId) { user, postCount ->
             callback(user, postCount)
         }
     }
 
-    fun getUserContactDetails(userId: String, callback: (String, String) -> Unit) {
+    fun getUserContactDetails(
+        userId: String,
+        callback: (String, String) -> Unit
+    ) {
         firebaseModel.getUserContactDetails(userId) { phoneNumber, fullName ->
             callback(phoneNumber, fullName)
         }
     }
 
-    fun editUserDetails(user: User, newProfileImageUri: Uri?, callback: (Boolean) -> Unit) {
+    fun editUserDetails(
+        user: User,
+        newProfileImageUri: Uri?,
+        callback: (Boolean) -> Unit
+    ) {
         firebaseModel.editUserDetails(user, newProfileImageUri) { isSuccess ->
             callback(isSuccess)
         }
     }
 
-    fun getEditPostDetails(postId: String, callback: (Post, String, String) -> Unit) {
+    fun getEditPostDetails(
+        postId: String,
+        callback: (Post, String, String) -> Unit
+    ) {
         firebaseModel.getEditPostDetails(postId) { post, fullName, phoneNumber ->
             callback(post, fullName, phoneNumber)
         }
     }
 
-    fun deletePost(postId: String, callback: (Boolean) -> Unit) {
+    fun deletePost(
+        postId: String,
+        callback: (Boolean) -> Unit
+    ) {
         firebaseModel.deletePost(postId) { isSuccess ->
             callback(isSuccess)
         }

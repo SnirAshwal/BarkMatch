@@ -1,11 +1,7 @@
 package com.BarkMatch.models
 
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import com.BarkMatch.MainActivity
 import com.BarkMatch.adapters.FeedRecyclerAdapter
 import com.BarkMatch.adapters.FeedRecyclerAdapter.Companion.FEED_PAGE_SIZE
 import com.BarkMatch.adapters.ProfileFeedRecyclerAdapter
@@ -139,7 +135,10 @@ class FirebaseModel {
             }
     }
 
-    fun isUserWithEmailExists(email: String, callback: (Boolean) -> Unit) {
+    fun isUserWithEmailExists(
+        email: String,
+        callback: (Boolean) -> Unit
+    ) {
         db.collection(USERS_COLLECTION_PATH)
             .whereEqualTo("email", email)
             .get()
@@ -153,13 +152,15 @@ class FirebaseModel {
             }
     }
 
-    fun logoutUser(context: Context) {
-        auth.signOut()
-
-        // Go back to the welcome page
-        val intent = Intent(context, MainActivity::class.java)
-        context.startActivity(intent)
-        (context as Activity).finish()
+    fun logoutUser(callback: (Boolean) -> Unit) {
+        try {
+            auth.signOut()
+            Log.i("TAG", "Logged out user successfully")
+            callback(true)
+        } catch (e: Exception) {
+            Log.e("TAG", "Failed to logout user", e)
+            callback(false)
+        }
     }
 
     fun getInitialFeedPosts(callback: (MutableList<Post>) -> Unit) {
@@ -307,7 +308,11 @@ class FirebaseModel {
             }
     }
 
-    fun createPost(post: Post, imageUri: Uri, callback: () -> Unit) {
+    fun createPost(
+        post: Post,
+        imageUri: Uri,
+        callback: () -> Unit
+    ) {
         val userId = auth.currentUser?.uid
         val timestamp = System.currentTimeMillis()
 
@@ -317,13 +322,15 @@ class FirebaseModel {
                 post.image = imageUrl
                 createPostInDB(post, callback)
             } else {
-                // Handle the case where image upload failed
-                println("Image upload failed")
+                Log.e("TAG", "Image upload failed")
             }
         }
     }
 
-    private fun createPostInDB(post: Post, callback: () -> Unit) {
+    private fun createPostInDB(
+        post: Post,
+        callback: () -> Unit
+    ) {
         db.collection(POSTS_COLLECTION_PATH).add(post.json)
             .addOnSuccessListener { documentReference ->
                 // Update the postId in the local Post instance
@@ -335,20 +342,23 @@ class FirebaseModel {
                     db.collection(POSTS_COLLECTION_PATH).document(documentReference.id)
                 postDocumentRef.update("id", generatedPostId)
                     .addOnSuccessListener {
-                        // The postId has been updated in the Firestore document
                         callback()
                     }
                     .addOnFailureListener { e ->
-                        // Handle the failure
+                        Log.e("TAG", "Image upload failed", e)
                         callback()
                     }
             }
             .addOnFailureListener { e ->
-                // handle error
+                Log.e("TAG", "Failed to save post to DB", e)
             }
     }
 
-    private fun uploadImage(imageUri: Uri, filename: String, callback: (String?) -> Unit) {
+    private fun uploadImage(
+        imageUri: Uri,
+        filename: String,
+        callback: (String?) -> Unit
+    ) {
         val imageRef = storageRef?.child(filename)
 
         // Upload file to Firebase Storage
@@ -360,12 +370,16 @@ class FirebaseModel {
                 }
             }
             ?.addOnFailureListener { e ->
-                // Handle errors during the upload
+                Log.e("TAG", "Failed to upload image", e)
                 callback(null)
             }
     }
 
-    fun editUserDetails(user: User, newProfileImageUri: Uri?, callback: (Boolean) -> Unit) {
+    fun editUserDetails(
+        user: User,
+        newProfileImageUri: Uri?,
+        callback: (Boolean) -> Unit
+    ) {
         user.id = auth.currentUser?.uid.toString()
 
         if (newProfileImageUri != null) {
@@ -408,7 +422,10 @@ class FirebaseModel {
             }
     }
 
-    fun getUserDetails(userId: String, callback: (User, Int) -> Unit) {
+    fun getUserDetails(
+        userId: String,
+        callback: (User, Int) -> Unit
+    ) {
         val userRef: DocumentReference = db.collection(USERS_COLLECTION_PATH).document(userId)
         userRef.get()
             .addOnSuccessListener { documentSnapshot ->
@@ -427,12 +444,15 @@ class FirebaseModel {
                 }
             }
             .addOnFailureListener { e ->
-                // Handle the exception
+                Log.e("TAG", "Failed to get user details", e)
                 callback(User(), 0)
             }
     }
 
-    fun getEditPostDetails(postId: String, callback: (Post, String, String) -> Unit) {
+    fun getEditPostDetails(
+        postId: String,
+        callback: (Post, String, String) -> Unit
+    ) {
         val postReference = db.collection(POSTS_COLLECTION_PATH).document(postId)
         postReference.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
@@ -448,11 +468,15 @@ class FirebaseModel {
                 callback(Post(), "", "")
             }
         }.addOnFailureListener { e ->
+            Log.e("TAG", "Failed to edit post details in DB", e)
             callback(Post(), "", "")
         }
     }
 
-    fun getUserContactDetails(userId: String, callback: (String, String) -> Unit) {
+    fun getUserContactDetails(
+        userId: String,
+        callback: (String, String) -> Unit
+    ) {
         val userRef: DocumentReference = db.collection(USERS_COLLECTION_PATH).document(userId)
         userRef.get()
             .addOnSuccessListener { documentSnapshot ->
@@ -468,12 +492,15 @@ class FirebaseModel {
                 }
             }
             .addOnFailureListener { e ->
-                // Handle the exception
+                Log.e("TAG", "Failed to get user contact details", e)
                 callback("", "")
             }
     }
 
-    private fun getPostCountForUser(userId: String, callback: (Int) -> Unit) {
+    private fun getPostCountForUser(
+        userId: String,
+        callback: (Int) -> Unit
+    ) {
         db.collection(POSTS_COLLECTION_PATH)
             .whereEqualTo("ownerId", userId)
             .get()
@@ -482,12 +509,15 @@ class FirebaseModel {
                 callback(querySnapshot.size())
             }
             .addOnFailureListener { e ->
-                // Handle the exception
+                Log.e("TAG", "Failed to get the amount of posts of the user", e)
                 callback(0)
             }
     }
 
-    fun deletePost(postId: String, callback: (Boolean) -> Unit) {
+    fun deletePost(
+        postId: String,
+        callback: (Boolean) -> Unit
+    ) {
         val postDocumentRef = db.collection(POSTS_COLLECTION_PATH).document(postId)
 
         postDocumentRef.delete()
