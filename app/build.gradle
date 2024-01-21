@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace 'com.BarkMatch'
+    namespace 'com.barkMatch'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.BarkMatch"
+        applicationId "com.barkMatch"
         minSdk 24
         targetSdk 34
         versionCode 1

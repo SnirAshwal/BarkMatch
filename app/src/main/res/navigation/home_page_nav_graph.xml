@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/FeedFragment"
-        android:name="com.BarkMatch.homePageFragments.FeedFragment"
+        android:name="com.barkMatch.homePageFragments.FeedFragment"
         android:label="Feed page">
         <action
             android:id="@+id/action_feed_to_createPost"
@@ -18,7 +18,7 @@
 
     <fragment
         android:id="@+id/CreatePostFragment"
-        android:name="com.BarkMatch.homePageFragments.CreatePostFragment"
+        android:name="com.barkMatch.homePageFragments.CreatePostFragment"
         android:label="Create post form">
         <action
             android:id="@+id/action_createPost_to_feed"
@@ -30,7 +30,7 @@
 
     <fragment
         android:id="@+id/EditPostFragment"
-        android:name="com.BarkMatch.homePageFragments.EditPostFragment"
+        android:name="com.barkMatch.homePageFragments.EditPostFragment"
         android:label="Edit post form">
 
         <argument
@@ -53,7 +53,7 @@
 
     <fragment
         android:id="@+id/ProfileFragment"
-        android:name="com.BarkMatch.homePageFragments.ProfileFragment"
+        android:name="com.barkMatch.homePageFragments.ProfileFragment"
         android:label="Profile page">
         <action
             android:id="@+id/action_profile_to_feed"
@@ -73,7 +73,7 @@
 
     <fragment
         android:id="@+id/ProfilePostFragment"
-        android:name="com.BarkMatch.homePageFragments.ProfilePostFragment"
+        android:name="com.barkMatch.homePageFragments.ProfilePostFragment"
         android:label="Edit post">
 
         <argument
@@ -89,7 +89,7 @@
 
     <activity
         android:id="@+id/ActivityEditProfile"
-        android:name="com.BarkMatch.EditProfileActivity">
+        android:name="com.barkMatch.EditProfileActivity">
 
         <argument
             android:name="firstName"
