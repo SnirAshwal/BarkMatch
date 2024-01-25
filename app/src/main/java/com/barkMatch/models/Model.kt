@@ -53,26 +53,15 @@ class Model private constructor() {
         }
     }
 
-    fun getInitialFeedPosts(callback: (MutableList<Post>) -> Unit) {
-        firebaseModel.getInitialFeedPosts(callback)
+    fun getPostsForFeed(callback: (MutableList<Post>) -> Unit) {
+        firebaseModel.getPostsForFeed(callback)
     }
 
-    fun loadMorePostsForFeed(callback: (MutableList<Post>) -> Unit) {
-        firebaseModel.loadMorePostsForFeed(callback)
-    }
-
-    fun getInitialProfileFeedPostsByUserId(
+    fun getPostsForProfileFeed(
         userId: String,
         callback: (MutableList<Post>) -> Unit
     ) {
-        firebaseModel.getInitialProfileFeedPostsByUserId(userId, callback)
-    }
-
-    fun loadMorePostsForProfileFeed(
-        userId: String,
-        callback: (MutableList<Post>) -> Unit
-    ) {
-        firebaseModel.loadMorePostsForProfileFeed(userId, callback)
+        firebaseModel.getPostsForProfileFeed(userId, callback)
     }
 
     fun createPost(

@@ -57,7 +57,7 @@ class ProfileFragment : Fragment() {
         progressBar?.visibility = View.VISIBLE
 
         val userId = auth.currentUser?.uid ?: ""
-        Model.instance.getInitialProfileFeedPostsByUserId(userId) { posts ->
+        Model.instance.getPostsForProfileFeed(userId) { posts ->
             getPosts(posts)
         }
 
@@ -80,7 +80,7 @@ class ProfileFragment : Fragment() {
                         && totalItemCount >= PROFILE_PAGE_SIZE
                     ) {
                         // Load more posts
-                        Model.instance.loadMorePostsForProfileFeed(userId) { posts ->
+                        Model.instance.getPostsForProfileFeed(userId) { posts ->
                             addPosts(posts)
                         }
                     }
@@ -110,7 +110,8 @@ class ProfileFragment : Fragment() {
 
         swipeRefreshLayoutFeed = binding.srlFeed
         swipeRefreshLayoutFeed?.setOnRefreshListener {
-            Model.instance.getInitialProfileFeedPostsByUserId(userId) { posts ->
+            ProfileFeedRecyclerAdapter.lastVisiblePost = null // To get the first items
+            Model.instance.getPostsForProfileFeed(userId) { posts ->
                 getPosts(posts)
             }
 

@@ -36,7 +36,7 @@ class FeedFragment : Fragment() {
         progressBar = binding.pbFeed
         progressBar?.visibility = View.VISIBLE
 
-        Model.instance.getInitialFeedPosts { posts ->
+        Model.instance.getPostsForFeed { posts ->
             getPosts(posts)
         }
 
@@ -59,7 +59,7 @@ class FeedFragment : Fragment() {
                         && totalItemCount >= FeedRecyclerAdapter.FEED_PAGE_SIZE
                     ) {
                         // Load more posts
-                        Model.instance.loadMorePostsForFeed { posts ->
+                        Model.instance.getPostsForFeed { posts ->
                             addPosts(posts)
                         }
                     }
@@ -69,7 +69,8 @@ class FeedFragment : Fragment() {
 
         swipeRefreshLayoutFeed = binding.srlFeed
         swipeRefreshLayoutFeed?.setOnRefreshListener {
-            Model.instance.getInitialFeedPosts { posts ->
+            FeedRecyclerAdapter.lastVisiblePost = null // To get the first items
+            Model.instance.getPostsForFeed { posts ->
                 getPosts(posts)
             }
 
