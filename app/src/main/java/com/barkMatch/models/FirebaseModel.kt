@@ -163,14 +163,23 @@ class FirebaseModel {
         }
     }
 
-    fun getInitialFeedPosts(callback: (MutableList<Post>) -> Unit) {
-        FeedRecyclerAdapter.isLastPage = false
+    fun getPostsForFeed(callback: (MutableList<Post>) -> Unit) {
+        if(FeedRecyclerAdapter.lastVisiblePost  == null) FeedRecyclerAdapter.isLastPage = false
         FeedRecyclerAdapter.isLoading = true
 
-        db.collection(POSTS_COLLECTION_PATH)
-            .orderBy("creationDate", Query.Direction.DESCENDING)
-            .limit(FEED_PAGE_SIZE)
-            .get().addOnCompleteListener {
+        val query = if (FeedRecyclerAdapter.lastVisiblePost != null) {
+            db.collection(POSTS_COLLECTION_PATH)
+                .orderBy("creationDate", Query.Direction.DESCENDING)
+                .startAfter(FeedRecyclerAdapter.lastVisiblePost?.getDate("creationDate"))
+                .limit(FEED_PAGE_SIZE)
+        } else {
+            db.collection(POSTS_COLLECTION_PATH)
+                .orderBy("creationDate", Query.Direction.DESCENDING)
+                .limit(FEED_PAGE_SIZE)
+        }
+
+        query.get()
+            .addOnCompleteListener {
                 when (it.isSuccessful) {
                     true -> {
                         val posts: MutableList<Post> = mutableListOf()
@@ -180,6 +189,7 @@ class FirebaseModel {
                         }
 
                         FeedRecyclerAdapter.isLoading = false
+                        FeedRecyclerAdapter.isLastPage = posts.size < FEED_PAGE_SIZE
 
                         if (!it.result.isEmpty) {
                             FeedRecyclerAdapter.lastVisiblePost = it.result.last()
@@ -196,90 +206,27 @@ class FirebaseModel {
             }
     }
 
-    fun loadMorePostsForFeed(callback: (MutableList<Post>) -> Unit) {
-        FeedRecyclerAdapter.isLoading = true
-
-        db.collection(POSTS_COLLECTION_PATH)
-            .orderBy("creationDate", Query.Direction.DESCENDING)
-            .startAfter(FeedRecyclerAdapter.lastVisiblePost?.getDate("creationDate"))
-            .limit(FEED_PAGE_SIZE)
-            .get()
-            .addOnCompleteListener {
-                when (it.isSuccessful) {
-                    true -> {
-                        val posts: MutableList<Post> = mutableListOf()
-                        for (json in it.result) {
-                            val post = Post.fromJSON(json.data)
-                            posts.add(post)
-                        }
-
-                        FeedRecyclerAdapter.isLoading = false
-                        FeedRecyclerAdapter.isLastPage = posts.size < PROFILE_PAGE_SIZE
-
-                        if (!it.result.isEmpty) {
-                            FeedRecyclerAdapter.lastVisiblePost = it.result.last()
-                        }
-
-                        callback(posts)
-                    }
-
-                    false -> {
-                        FeedRecyclerAdapter.isLoading = false
-                        callback(mutableListOf())
-                    }
-                }
-            }
-    }
-
-    fun getInitialProfileFeedPostsByUserId(
+    fun getPostsForProfileFeed(
         userId: String,
         callback: (MutableList<Post>) -> Unit
     ) {
-        ProfileFeedRecyclerAdapter.isLastPage = false
+        if(ProfileFeedRecyclerAdapter.lastVisiblePost  == null) ProfileFeedRecyclerAdapter.isLastPage = false
         ProfileFeedRecyclerAdapter.isLoading = true
 
-        db.collection(POSTS_COLLECTION_PATH)
-            .orderBy("creationDate", Query.Direction.DESCENDING)
-            .whereEqualTo("ownerId", userId)
-            .limit(PROFILE_PAGE_SIZE)
-            .get()
-            .addOnCompleteListener {
-                when (it.isSuccessful) {
-                    true -> {
-                        val posts: MutableList<Post> = mutableListOf()
-                        for (json in it.result) {
-                            val post = Post.fromJSON(json.data)
-                            posts.add(post)
-                        }
+        val query = if (ProfileFeedRecyclerAdapter.lastVisiblePost != null) {
+            db.collection(POSTS_COLLECTION_PATH)
+                .orderBy("creationDate", Query.Direction.DESCENDING)
+                .whereEqualTo("ownerId", userId)
+                .startAfter(ProfileFeedRecyclerAdapter.lastVisiblePost?.getDate("creationDate"))
+                .limit(PROFILE_PAGE_SIZE)
+        } else {
+            db.collection(POSTS_COLLECTION_PATH)
+                .orderBy("creationDate", Query.Direction.DESCENDING)
+                .whereEqualTo("ownerId", userId)
+                .limit(PROFILE_PAGE_SIZE)
+        }
 
-                        ProfileFeedRecyclerAdapter.isLoading = false
-
-                        if (!it.result.isEmpty) {
-                            ProfileFeedRecyclerAdapter.lastVisiblePost = it.result.last()
-                        }
-
-                        callback(posts)
-                    }
-
-                    false -> {
-                        ProfileFeedRecyclerAdapter.isLoading = false
-                        callback(mutableListOf())
-                    }
-                }
-            }
-    }
-
-    fun loadMorePostsForProfileFeed(
-        userId: String,
-        callback: (MutableList<Post>) -> Unit
-    ) {
-        ProfileFeedRecyclerAdapter.isLoading = true
-
-        db.collection(POSTS_COLLECTION_PATH)
-            .orderBy("creationDate", Query.Direction.DESCENDING)
-            .whereEqualTo("ownerId", userId)
-            .startAfter(ProfileFeedRecyclerAdapter.lastVisiblePost?.getDate("creationDate"))
-            .limit(PROFILE_PAGE_SIZE)
+        query
             .get()
             .addOnCompleteListener {
                 when (it.isSuccessful) {
