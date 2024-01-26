@@ -36,6 +36,7 @@ class FeedFragment : Fragment() {
         progressBar = binding.pbFeed
         progressBar?.visibility = View.VISIBLE
 
+        FeedRecyclerAdapter.lastVisiblePost = null // To get the first items
         Model.instance.getPostsForFeed { posts ->
             getPosts(posts)
         }

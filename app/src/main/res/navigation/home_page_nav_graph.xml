@@ -63,12 +63,12 @@
             app:destination="@id/fragment_create_post" />
 
         <action
-            android:id="@+id/action_profile_to_activityEditProfile"
-            app:destination="@id/ActivityEditProfile"></action>
+            android:id="@+id/action_profile_to_profilePost"
+            app:destination="@id/ProfilePostFragment"/>
 
         <action
-            android:id="@+id/action_profile_to_profilePost"
-            app:destination="@id/ProfilePostFragment"></action>
+            android:id="@+id/action_profile_to_EditProfile"
+            app:destination="@id/EditProfileFragment"/>
     </fragment>
 
     <fragment
@@ -87,9 +87,10 @@
             app:destination="@id/EditPostFragment" />
     </fragment>
 
-    <activity
-        android:id="@+id/ActivityEditProfile"
-        android:name="com.barkMatch.EditProfileActivity">
+    <fragment
+        android:id="@+id/EditProfileFragment"
+        android:name="com.barkMatch.homePageFragments.EditProfileFragment"
+        android:label="Edit profile form">
 
         <argument
             android:name="firstName"
@@ -111,5 +112,5 @@
             android:name="profileImage"
             android:defaultValue=""
             app:argType="string" />
-    </activity>
+    </fragment>
 </navigation>

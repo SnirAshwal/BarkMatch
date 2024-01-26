@@ -20,13 +20,14 @@ class HomeActivity : AppCompatActivity() {
 
         val navHostFragment: NavHostFragment? = supportFragmentManager.findFragmentById(R.id.navHostHome) as? NavHostFragment
         navController = navHostFragment?.navController
-//        navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
 
         val bottomNavigationView: BottomNavigationView = findViewById(R.id.homeActivityBottomNavigationView)
         navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
 
         navController?.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.ProfilePostFragment || destination.id == R.id.EditPostFragment) {
+            if (destination.id == R.id.ProfilePostFragment ||
+                destination.id == R.id.EditPostFragment ||
+                destination.id == R.id. EditProfileFragment) {
                 bottomNavigationView.visibility = View.GONE
             } else {
                 bottomNavigationView.visibility = View.VISIBLE

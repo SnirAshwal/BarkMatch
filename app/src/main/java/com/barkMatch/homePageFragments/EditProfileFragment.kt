@@ -1,24 +1,29 @@
-package com.barkMatch
+package com.barkMatch.homePageFragments
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import com.barkMatch.databinding.ActivityEditProfileBinding
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import com.barkMatch.MainActivity
+import com.barkMatch.databinding.FragmentEditProfileBinding
 import com.barkMatch.models.Model
 import com.barkMatch.models.User
 import com.barkMatch.utils.ImagesUtils
 import com.barkMatch.utils.SnackbarUtils
 import com.barkMatch.utils.Validations
 
-class EditProfileActivity : AppCompatActivity() {
+class EditProfileFragment : Fragment() {
 
     private var backButton: ImageButton? = null
     private var btnEditProfile: Button? = null
@@ -31,35 +36,37 @@ class EditProfileActivity : AppCompatActivity() {
     private var selectedImageUri: Uri? = null
     private var pbEditProfile: ProgressBar? = null
 
-    private var binding: ActivityEditProfileBinding? = null
-
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             ivEditProfileImg?.let { ImagesUtils.loadImage(uri, it) }
             selectedImageUri = uri
         }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityEditProfileBinding.inflate(layoutInflater)
-        val view = binding!!.root
-        setContentView(view)
+    private var _binding: FragmentEditProfileBinding? = null
+    private val binding get() = _binding!!
 
-        pbEditProfile = binding?.pbEditProfile
-        btnEditProfile = binding?.btnEditProfile
-        btnLogout = binding?.btnLogout
-        backButton = binding?.btnEditProfileBack
-        etEditProfileFirstName = binding?.etEditProfileFirstName
-        etEditProfileLastName = binding?.etEditProfileLastName
-        etEditProfileDescription = binding?.etEditProfileDescription
-        etEditProfilePhoneNumber = binding?.etEditProfilePhoneNumber
-        ivEditProfileImg = binding?.ivEditProfileImg
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentEditProfileBinding.inflate(inflater, container, false)
+        val view = binding.root
+
+        pbEditProfile = binding.pbEditProfile
+        btnEditProfile = binding.btnEditProfile
+        btnLogout = binding.btnLogout
+        backButton = binding.btnEditProfileBack
+        etEditProfileFirstName = binding.etEditProfileFirstName
+        etEditProfileLastName = binding.etEditProfileLastName
+        etEditProfileDescription = binding.etEditProfileDescription
+        etEditProfilePhoneNumber = binding.etEditProfilePhoneNumber
+        ivEditProfileImg = binding.ivEditProfileImg
         ivEditProfileImg?.setOnClickListener {
             pickImageLauncher.launch("image/*")
         }
 
         backButton?.setOnClickListener {
-            finish()
+            findNavController().popBackStack()
         }
 
         btnEditProfile?.setOnClickListener {
@@ -93,7 +100,7 @@ class EditProfileActivity : AppCompatActivity() {
             pbEditProfile?.visibility = View.VISIBLE
             Model.instance.editUserDetails(user, selectedImageUri) { isSuccess ->
                 if (isSuccess) {
-                    finish() // navigate back on finish editing
+                    findNavController().popBackStack() // navigate back on finish editing
                 } else {
                     SnackbarUtils.showSnackbar(
                         view,
@@ -110,34 +117,24 @@ class EditProfileActivity : AppCompatActivity() {
                 // Go back to the welcome page
                 val intent = Intent(view.context, MainActivity::class.java)
                 startActivity(intent)
-                finish()
+                requireActivity().finish()
             }
         }
 
         initUserDetails()
-    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        binding = null
+        return view
     }
 
     private fun initUserDetails() {
-        etEditProfileFirstName?.setText(intent?.extras?.let { EditProfileActivityArgs.fromBundle(it).firstName })
-        etEditProfileLastName?.setText(intent?.extras?.let { EditProfileActivityArgs.fromBundle(it).lastName })
-        etEditProfileDescription?.setText(intent?.extras?.let {
-            EditProfileActivityArgs.fromBundle(
-                it
-            ).description
-        })
-        etEditProfilePhoneNumber?.setText(intent?.extras?.let {
-            EditProfileActivityArgs.fromBundle(
-                it
-            ).phoneNumber
-        })
+        val args: EditProfileFragmentArgs by navArgs()
 
-        val userProfileImageUrl =
-            intent?.extras?.let { EditProfileActivityArgs.fromBundle(it).profileImage } ?: ""
+        etEditProfileFirstName?.setText(args.firstName)
+        etEditProfileLastName?.setText(args.lastName)
+        etEditProfileDescription?.setText(args.description)
+        etEditProfilePhoneNumber?.setText(args.phoneNumber)
+
+        val userProfileImageUrl = args.profileImage
         if (userProfileImageUrl.isNotEmpty()) {
             ivEditProfileImg?.let { ImagesUtils.loadImage(userProfileImageUrl, it) }
         }

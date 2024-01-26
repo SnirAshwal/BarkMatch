@@ -57,6 +57,7 @@ class ProfileFragment : Fragment() {
         progressBar?.visibility = View.VISIBLE
 
         val userId = auth.currentUser?.uid ?: ""
+        ProfileFeedRecyclerAdapter.lastVisiblePost = null // To get the first items
         Model.instance.getPostsForProfileFeed(userId) { posts ->
             getPosts(posts)
         }
@@ -91,7 +92,7 @@ class ProfileFragment : Fragment() {
         editProfileBtn = binding.btnEditProfile
         editProfileBtn?.setOnClickListener {
             val action =
-                ProfileFragmentDirections.actionProfileToActivityEditProfile(
+                ProfileFragmentDirections.actionProfileToEditProfile(
                     description = userDescription,
                     firstName = userFirstName,
                     lastName = userLastName,
