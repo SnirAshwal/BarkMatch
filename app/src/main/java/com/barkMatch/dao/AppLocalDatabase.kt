@@ -6,12 +6,14 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.barkMatch.base.MyApplication
 import com.barkMatch.models.Post
+import com.barkMatch.models.User
 import com.barkMatch.utils.DateConverter
 
-@Database(entities = [Post::class], version = 1)
+@Database(entities = [Post::class, User::class], version = 6)
 @TypeConverters(DateConverter::class)
 abstract class AppLocalDbRepository : RoomDatabase() {
     abstract fun postDao(): PostDao
+    abstract fun userDao(): UserDao
 }
 
 object AppLocalDatabase {
@@ -26,7 +28,6 @@ object AppLocalDatabase {
             AppLocalDbRepository::class.java,
             "dbFileName.db"
         )
-            .fallbackToDestructiveMigration() // TODO: change to migration before production
             .build()
     }
 }

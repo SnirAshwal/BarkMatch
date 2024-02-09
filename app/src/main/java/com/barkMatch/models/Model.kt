@@ -1,11 +1,29 @@
 package com.barkMatch.models
 
 import android.net.Uri
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.barkMatch.dao.AppLocalDatabase
 import com.barkMatch.interfaces.AuthenticationCallback
+import java.util.concurrent.Executors
 
 class Model private constructor() {
 
+    enum class LoadingState {
+        LOADING,
+        LOADED
+    }
+
     private val firebaseModel = FirebaseModel()
+    private val database = AppLocalDatabase.db
+    private var executor = Executors.newSingleThreadExecutor()
+    private val feedPosts: LiveData<MutableList<Post>>? = null
+    private val profilePosts: LiveData<MutableList<Post>>? = null
+    private val profileUserDetails: LiveData<User>? = null
+    val feedPostsLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
+    val profilePostsLoadingState: MutableLiveData<LoadingState> =
+        MutableLiveData(LoadingState.LOADED)
 
     companion object {
         val instance: Model = Model()
@@ -53,15 +71,60 @@ class Model private constructor() {
         }
     }
 
-    fun getPostsForFeed(callback: (MutableList<Post>) -> Unit) {
-        firebaseModel.getPostsForFeed(callback)
+    fun getPostsForFeed(): LiveData<MutableList<Post>> {
+        refreshPostsForFeed()
+        return feedPosts ?: database.postDao().getAll()
     }
 
-    fun getPostsForProfileFeed(
-        userId: String,
-        callback: (MutableList<Post>) -> Unit
-    ) {
-        firebaseModel.getPostsForProfileFeed(userId, callback)
+    fun refreshPostsForFeed() {
+        feedPostsLoadingState.value = LoadingState.LOADING
+        val lastCreated: Long = Post.creationDate
+
+        firebaseModel.getPostsForFeed(lastCreated) { list ->
+            Log.i("TAG", "Firebase returned ${list.size}, lastUpdated: $lastCreated")
+            executor.execute {
+                var time = lastCreated
+                for (post in list) {
+                    database.postDao().insert(post)
+
+                    post.creationDate?.let {
+                        if (time < it)
+                            time = post.creationDate ?: System.currentTimeMillis()
+                    }
+                }
+
+                Post.creationDate = time
+                feedPostsLoadingState.postValue(LoadingState.LOADED)
+            }
+        }
+    }
+
+    fun getPostsForProfileFeed(userId: String): LiveData<MutableList<Post>> {
+        refreshPostsForProfile(userId)
+        return profilePosts ?: database.postDao().getAllByUserId(userId)
+    }
+
+    fun refreshPostsForProfile(userId: String) {
+        profilePostsLoadingState.value = LoadingState.LOADING
+        val lastCreated: Long = Post.creationDate
+
+        firebaseModel.getPostsForProfileFeed(userId, lastCreated) { list ->
+            Log.i("TAG", "Firebase returned ${list.size}, lastUpdated: $lastCreated")
+            executor.execute {
+                var time = lastCreated
+                for (post in list) {
+                    database.postDao().insert(post)
+
+                    post.creationDate?.let {
+                        if (time < it)
+                            time = post.creationDate ?: System.currentTimeMillis()
+                    }
+                }
+
+                Post.creationDate = time
+                profilePostsLoadingState.postValue(LoadingState.LOADED)
+            }
+        }
     }
 
     fun createPost(
@@ -69,15 +132,34 @@ class Model private constructor() {
         imageUri: Uri,
         callback: () -> Unit
     ) {
-        firebaseModel.createPost(post, imageUri, callback)
+        firebaseModel.createPost(post, imageUri) {
+            refreshPostsForFeed()
+            callback()
+        }
     }
 
     fun getUserDetails(
         userId: String,
-        callback: (User, Int) -> Unit
-    ) {
-        firebaseModel.getUserDetails(userId) { user, postCount ->
-            callback(user, postCount)
+    ): LiveData<User> {
+        refreshUserDetails(userId)
+        return profileUserDetails ?: database.userDao().getUserById(userId)
+    }
+
+    fun refreshUserDetails(userId: String) {
+        val lastUpdated: Long = User.lastUpdated
+
+        firebaseModel.getUserDetails(userId, lastUpdated) { user ->
+            executor.execute {
+                var time = lastUpdated
+                database.userDao().insert(user)
+
+                user.updatedAt?.let {
+                    if (time < it)
+                        time = user.updatedAt ?: System.currentTimeMillis()
+                }
+
+                User.lastUpdated = time
+            }
         }
     }
 
@@ -114,6 +196,9 @@ class Model private constructor() {
         callback: (Boolean) -> Unit
     ) {
         firebaseModel.deletePost(postId) { isSuccess ->
+            executor.execute {
+                database.postDao().delete(postId) // Remove from local
+            }
             callback(isSuccess)
         }
     }
@@ -125,7 +210,17 @@ class Model private constructor() {
         description: String,
         imageUri: Uri?, callback: (Boolean) -> Unit
     ) {
-        firebaseModel.editPost(postId, breedName, breedId, description, imageUri) { isSuccess ->
+        firebaseModel.editPost(
+            postId,
+            breedName,
+            breedId,
+            description,
+            imageUri
+        ) { isSuccess, imageUrl ->
+            executor.execute {
+                database.postDao()
+                    .update(postId, breedName, breedId, description, imageUrl) // Update in local
+            }
             callback(isSuccess)
         }
     }

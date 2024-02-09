@@ -10,23 +10,22 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.barkMatch.adapters.ProfileFeedRecyclerAdapter
-import com.barkMatch.adapters.ProfileFeedRecyclerAdapter.Companion.PROFILE_PAGE_SIZE
 import com.barkMatch.databinding.FragmentProfileBinding
 import com.barkMatch.models.Model
-import com.barkMatch.models.Post
 import com.barkMatch.utils.ImagesUtils
+import com.barkMatch.viewsModels.ProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class ProfileFragment : Fragment() {
 
     private val auth = FirebaseAuth.getInstance()
     private var profileFeedPostsView: RecyclerView? = null
-    private var posts: MutableList<Post>? = null
     private var adapter: ProfileFeedRecyclerAdapter? = null
     private var progressBar: ProgressBar? = null
     private var editProfileBtn: Button? = null
@@ -36,15 +35,12 @@ class ProfileFragment : Fragment() {
     private var tvPosts: TextView? = null
     private var swipeRefreshLayoutFeed: SwipeRefreshLayout? = null
 
-    private var userFirstName: String = ""
-    private var userLastName: String = ""
-    private var userDescription: String = ""
-    private var userPhoneNumber: String = ""
-    private var userProfileImage: String = ""
-
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var viewModel: ProfileViewModel
+
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -52,52 +48,29 @@ class ProfileFragment : Fragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        view.visibility = View.GONE
+        viewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
+
         progressBar = binding.pbProfileFeed
         progressBar?.visibility = View.VISIBLE
 
         val userId = auth.currentUser?.uid ?: ""
-        ProfileFeedRecyclerAdapter.lastVisiblePost = null // To get the first items
-        Model.instance.getPostsForProfileFeed(userId) { posts ->
-            getPosts(posts)
-        }
-
+        viewModel.posts = Model.instance.getPostsForProfileFeed(userId)
+        viewModel.user = Model.instance.getUserDetails(userId)
         profileFeedPostsView = binding.rvProfilePosts
         profileFeedPostsView?.setHasFixedSize(true)
         profileFeedPostsView?.layoutManager = GridLayoutManager(context, 2)
-        adapter = ProfileFeedRecyclerAdapter(posts)
+        adapter = ProfileFeedRecyclerAdapter(viewModel.posts?.value)
         profileFeedPostsView?.adapter = adapter
-        profileFeedPostsView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                val layoutManager = recyclerView.layoutManager as GridLayoutManager
-                val visibleItemCount = layoutManager.childCount
-                val totalItemCount = layoutManager.itemCount
-                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
-
-                if (!ProfileFeedRecyclerAdapter.isLoading && !ProfileFeedRecyclerAdapter.isLastPage) {
-                    if (visibleItemCount + firstVisibleItemPosition >= totalItemCount
-                        && firstVisibleItemPosition >= 0
-                        && totalItemCount >= PROFILE_PAGE_SIZE
-                    ) {
-                        // Load more posts
-                        Model.instance.getPostsForProfileFeed(userId) { posts ->
-                            addPosts(posts)
-                        }
-                    }
-                }
-            }
-        })
 
         editProfileBtn = binding.btnEditProfile
         editProfileBtn?.setOnClickListener {
             val action =
                 ProfileFragmentDirections.actionProfileToEditProfile(
-                    description = userDescription,
-                    firstName = userFirstName,
-                    lastName = userLastName,
-                    phoneNumber = userPhoneNumber,
-                    profileImage = userProfileImage
+                    description = viewModel.user?.value?.description ?: "",
+                    firstName = viewModel.user?.value?.firstName ?: "",
+                    lastName = viewModel.user?.value?.lastName ?: "",
+                    phoneNumber = viewModel.user?.value?.phoneNumber ?: "",
+                    profileImage = viewModel.user?.value?.profileImage ?: ""
                 )
             findNavController().navigate(action)
         }
@@ -107,65 +80,48 @@ class ProfileFragment : Fragment() {
         imgProfileImage = binding.imgProfileImage
         tvPosts = binding.tvPosts
 
-        initUserDetails(userId)
-
         swipeRefreshLayoutFeed = binding.srlFeed
         swipeRefreshLayoutFeed?.setOnRefreshListener {
-            ProfileFeedRecyclerAdapter.lastVisiblePost = null // To get the first items
-            Model.instance.getPostsForProfileFeed(userId) { posts ->
-                getPosts(posts)
-            }
+            reloadData(userId)
+        }
 
-            swipeRefreshLayoutFeed?.isRefreshing = false
+        viewModel.posts?.observe(viewLifecycleOwner) {
+            adapter?.posts = it
+            adapter?.notifyDataSetChanged()
+            progressBar?.visibility = View.GONE
+        }
+
+        viewModel.user?.observe(viewLifecycleOwner) { user ->
+            tvUsername?.text = user?.firstName + " " + user?.lastName
+            tvDescription?.text = user?.description
+            tvPosts?.text = viewModel.posts?.value?.size.toString()
+
+            if (user?.profileImage?.isNotEmpty() == true) {
+                imgProfileImage?.let {
+                    ImagesUtils.loadImage(
+                        viewModel.user?.value?.profileImage!!,
+                        it
+                    )
+                }
+            }
+        }
+
+        Model.instance.profilePostsLoadingState.observe(viewLifecycleOwner) { state ->
+            swipeRefreshLayoutFeed?.isRefreshing = state == Model.LoadingState.LOADING
         }
 
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
-        auth.currentUser?.uid?.let {
-            initUserDetails(it)
-        }
+    private fun reloadData(userId: String) {
+        progressBar?.visibility = View.VISIBLE
+        Model.instance.refreshPostsForProfile(userId)
+        Model.instance.refreshUserDetails(userId)
+        progressBar?.visibility = View.GONE
     }
 
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-    }
-
-    private fun addPosts(posts: MutableList<Post>) {
-        val startPosition = this.posts?.size ?: 0
-        this.posts?.addAll(posts)
-        adapter?.notifyItemRangeInserted(startPosition, posts.size)
-        progressBar?.visibility = View.GONE
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun getPosts(posts: MutableList<Post>) {
-        this.posts = posts
-        adapter?.posts = posts
-        adapter?.notifyDataSetChanged()
-        view?.visibility = View.VISIBLE
-        progressBar?.visibility = View.GONE
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun initUserDetails(userId: String) {
-        Model.instance.getUserDetails(userId) { user, postCount ->
-            tvUsername?.text = user.firstName + " " + user.lastName
-            tvDescription?.text = user.description
-            tvPosts?.text = postCount.toString()
-
-            if (user.profileImage.isNotEmpty()) {
-                imgProfileImage?.let { ImagesUtils.loadImage(user.profileImage, it) }
-            }
-
-            userFirstName = user.firstName
-            userLastName = user.lastName
-            userDescription = user.description
-            userPhoneNumber = user.phoneNumber
-            userProfileImage = user.profileImage
-        }
     }
 }

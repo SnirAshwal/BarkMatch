@@ -104,7 +104,7 @@ class EditProfileFragment : Fragment() {
                 } else {
                     SnackbarUtils.showSnackbar(
                         view,
-                        "Something went went wrong, failed to save changes"
+                        "Something went wrong, failed to save changes"
                     )
                 }
 
