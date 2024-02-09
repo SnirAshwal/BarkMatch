@@ -2,16 +2,11 @@ package com.barkMatch.models
 
 import android.net.Uri
 import android.util.Log
-import com.barkMatch.adapters.FeedRecyclerAdapter
-import com.barkMatch.adapters.FeedRecyclerAdapter.Companion.FEED_PAGE_SIZE
-import com.barkMatch.adapters.ProfileFeedRecyclerAdapter
-import com.barkMatch.adapters.ProfileFeedRecyclerAdapter.Companion.PROFILE_PAGE_SIZE
 import com.barkMatch.interfaces.AuthenticationCallback
 import com.google.android.gms.tasks.Task
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
@@ -124,7 +119,8 @@ class FirebaseModel {
         userId: String,
         newUser: User, callback: (Boolean) -> Unit
     ) {
-        db.collection(USERS_COLLECTION_PATH).document(userId).set(newUser)
+        newUser.id = userId
+        db.collection(USERS_COLLECTION_PATH).add(newUser.json)
             .addOnSuccessListener {
                 Log.e("TAG", "Crated user with email ${newUser.email} successfully")
                 callback(true)
@@ -163,70 +159,14 @@ class FirebaseModel {
         }
     }
 
-    fun getPostsForFeed(callback: (MutableList<Post>) -> Unit) {
-        if(FeedRecyclerAdapter.lastVisiblePost  == null) FeedRecyclerAdapter.isLastPage = false
-        FeedRecyclerAdapter.isLoading = true
-
-        val query = if (FeedRecyclerAdapter.lastVisiblePost != null) {
-            db.collection(POSTS_COLLECTION_PATH)
-                .orderBy("creationDate", Query.Direction.DESCENDING)
-                .startAfter(FeedRecyclerAdapter.lastVisiblePost?.getDate("creationDate"))
-                .limit(FEED_PAGE_SIZE)
-        } else {
-            db.collection(POSTS_COLLECTION_PATH)
-                .orderBy("creationDate", Query.Direction.DESCENDING)
-                .limit(FEED_PAGE_SIZE)
-        }
-
-        query.get()
-            .addOnCompleteListener {
-                when (it.isSuccessful) {
-                    true -> {
-                        val posts: MutableList<Post> = mutableListOf()
-                        for (json in it.result) {
-                            val post = Post.fromJSON(json.data)
-                            posts.add(post)
-                        }
-
-                        FeedRecyclerAdapter.isLoading = false
-                        FeedRecyclerAdapter.isLastPage = posts.size < FEED_PAGE_SIZE
-
-                        if (!it.result.isEmpty) {
-                            FeedRecyclerAdapter.lastVisiblePost = it.result.last()
-                        }
-
-                        callback(posts)
-                    }
-
-                    false -> {
-                        FeedRecyclerAdapter.isLoading = false
-                        callback(mutableListOf())
-                    }
-                }
-            }
-    }
-
     fun getPostsForProfileFeed(
         userId: String,
+        since: Long,
         callback: (MutableList<Post>) -> Unit
     ) {
-        if(ProfileFeedRecyclerAdapter.lastVisiblePost  == null) ProfileFeedRecyclerAdapter.isLastPage = false
-        ProfileFeedRecyclerAdapter.isLoading = true
-
-        val query = if (ProfileFeedRecyclerAdapter.lastVisiblePost != null) {
-            db.collection(POSTS_COLLECTION_PATH)
-                .orderBy("creationDate", Query.Direction.DESCENDING)
-                .whereEqualTo("ownerId", userId)
-                .startAfter(ProfileFeedRecyclerAdapter.lastVisiblePost?.getDate("creationDate"))
-                .limit(PROFILE_PAGE_SIZE)
-        } else {
-            db.collection(POSTS_COLLECTION_PATH)
-                .orderBy("creationDate", Query.Direction.DESCENDING)
-                .whereEqualTo("ownerId", userId)
-                .limit(PROFILE_PAGE_SIZE)
-        }
-
-        query
+        db.collection(POSTS_COLLECTION_PATH)
+            .whereGreaterThanOrEqualTo(Post.CREATION_DATE_KEY, Timestamp(since, 0))
+            .whereEqualTo("ownerId", userId)
             .get()
             .addOnCompleteListener {
                 when (it.isSuccessful) {
@@ -237,18 +177,33 @@ class FirebaseModel {
                             posts.add(post)
                         }
 
-                        ProfileFeedRecyclerAdapter.isLoading = false
-                        ProfileFeedRecyclerAdapter.isLastPage = posts.size < PROFILE_PAGE_SIZE
+                        callback(posts)
+                    }
 
-                        if (!it.result.isEmpty) {
-                            ProfileFeedRecyclerAdapter.lastVisiblePost = it.result.last()
+                    false -> {
+                        callback(mutableListOf())
+                    }
+                }
+            }
+    }
+
+    fun getPostsForFeed(since: Long, callback: (MutableList<Post>) -> Unit) {
+        db.collection(POSTS_COLLECTION_PATH)
+            .whereGreaterThanOrEqualTo(Post.CREATION_DATE_KEY, Timestamp(since, 0))
+            .get()
+            .addOnCompleteListener {
+                when (it.isSuccessful) {
+                    true -> {
+                        val posts: MutableList<Post> = mutableListOf()
+                        for (json in it.result) {
+                            val post = Post.fromJSON(json.data)
+                            posts.add(post)
                         }
 
                         callback(posts)
                     }
 
                     false -> {
-                        ProfileFeedRecyclerAdapter.isLoading = false
                         callback(mutableListOf())
                     }
                 }
@@ -356,43 +311,67 @@ class FirebaseModel {
         isProfileImageUpdated: Boolean,
         callback: (Boolean) -> Unit
     ) {
-        val userRef: DocumentReference = db.collection(USERS_COLLECTION_PATH).document(user.id)
-        val updates =
-            if (isProfileImageUpdated) User.getUpdateMapWithImage(user) else User.getUpdateMap(user)
+        db.collection(USERS_COLLECTION_PATH)
+            .whereEqualTo(User.ID_KEY, user.id)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val userDocument = querySnapshot.documents[0]
+                    val updates =
+                        if (isProfileImageUpdated) User.getUpdateMapWithImage(user) else User.getUpdateMap(
+                            user
+                        )
 
-        userRef.update(updates)
-            .addOnSuccessListener {
-                callback(true)
+                    userDocument.reference
+                        .update(updates)
+                        .addOnSuccessListener {
+                            Log.i(
+                                "TAG",
+                                "Document successfully updated for user with ID: ${user.id}"
+                            )
+                            callback(true)
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("TAG", "Error updating document for user with ID: ${user.id}", e)
+                            callback(false)
+                        }
+                } else {
+                    Log.i("TAG", "No document found for user with ID: ${user.id}")
+                    callback(false)
+                }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
+                Log.e("TAG", "Error querying document for user with ID: ${user.id}", e)
                 callback(false)
             }
     }
 
     fun getUserDetails(
         userId: String,
-        callback: (User, Int) -> Unit
+        since: Long,
+        callback: (User) -> Unit
     ) {
-        val userRef: DocumentReference = db.collection(USERS_COLLECTION_PATH).document(userId)
-        userRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val user = documentSnapshot.toObject(User::class.java)
-                    if (user != null) {
-                        getPostCountForUser(userId) { postCount ->
-                            callback(user, postCount)
+        db.collection(USERS_COLLECTION_PATH)
+            .whereGreaterThanOrEqualTo(User.UPDATED_AT_KEY, Timestamp(since, 0))
+            .whereEqualTo(User.ID_KEY, userId)
+            .get()
+            .addOnCompleteListener {
+                when (it.isSuccessful) {
+                    true -> {
+                        if (it.result.documents.size == 1) {
+                            val user =
+                                it.result.documents[0].data?.let { it1 -> User.fromJSON(it1) }
+                            callback(user ?: User())
+                        } else {
+                            callback(User())
                         }
-                    } else {
-                        callback(User(), 0)
                     }
-                } else {
-                    // User document does not exist
-                    callback(User(), 0)
+
+                    false -> {
+                        Log.e("TAG", "Failed to get user details")
+                        callback(User())
+                    }
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e("TAG", "Failed to get user details", e)
-                callback(User(), 0)
             }
     }
 
@@ -403,13 +382,30 @@ class FirebaseModel {
         val postReference = db.collection(POSTS_COLLECTION_PATH).document(postId)
         postReference.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
-                val post = documentSnapshot.toObject(Post::class.java)
-                if (post != null) {
-                    getUserContactDetails(post.ownerId) { phoneNumber, fullName ->
-                        callback(post, fullName, phoneNumber)
-                    }
-                } else {
-                    callback(Post(), "", "")
+                val creationDate: Long =
+                    documentSnapshot.getTimestamp(Post.CREATION_DATE_KEY)?.toDate()?.time ?: 0
+                val updatedAt: Long =
+                    documentSnapshot.getTimestamp(Post.UPDATED_AT_KEY)?.toDate()?.time ?: 0
+                val id: String = documentSnapshot.getString(Post.POST_ID_KEY) ?: ""
+                val description: String = documentSnapshot.getString(Post.DESCRIPTION_KEY) ?: ""
+                val ownerId: String = documentSnapshot.getString(Post.OWNER_ID_KEY) ?: ""
+                val breedId: Int = documentSnapshot.getLong(Post.BREED_ID_KEY)?.toInt() ?: -1
+                val breedName: String = documentSnapshot.getString(Post.BREED_NAME_KEY) ?: ""
+                val image: String = documentSnapshot.getString(Post.IMAGE_KEY) ?: ""
+
+                getUserContactDetails(ownerId) { phoneNumber, fullName ->
+                    callback(
+                        Post(
+                            id,
+                            description,
+                            ownerId,
+                            breedId,
+                            breedName,
+                            image,
+                            creationDate,
+                            updatedAt
+                        ), fullName, phoneNumber
+                    )
                 }
             } else {
                 callback(Post(), "", "")
@@ -424,40 +420,29 @@ class FirebaseModel {
         userId: String,
         callback: (String, String) -> Unit
     ) {
-        val userRef: DocumentReference = db.collection(USERS_COLLECTION_PATH).document(userId)
-        userRef.get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val user = documentSnapshot.toObject(User::class.java)
-                    callback(
-                        user?.phoneNumber ?: "",
-                        (user?.firstName + " " + user?.lastName)
-                    )
-                } else {
-                    // User document does not exist
-                    callback("", "")
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("TAG", "Failed to get user contact details", e)
-                callback("", "")
-            }
-    }
-
-    private fun getPostCountForUser(
-        userId: String,
-        callback: (Int) -> Unit
-    ) {
-        db.collection(POSTS_COLLECTION_PATH)
-            .whereEqualTo("ownerId", userId)
+        db.collection(USERS_COLLECTION_PATH)
+            .whereEqualTo(User.ID_KEY, userId)
             .get()
-            .addOnSuccessListener { querySnapshot ->
-                // Return the count of posts
-                callback(querySnapshot.size())
-            }
-            .addOnFailureListener { e ->
-                Log.e("TAG", "Failed to get the amount of posts of the user", e)
-                callback(0)
+            .addOnCompleteListener {
+                when (it.isSuccessful) {
+                    true -> {
+                        if (it.result.documents.size == 1) {
+                            val user =
+                                it.result.documents[0].data?.let { it1 -> User.fromJSON(it1) }
+                            callback(
+                                user?.phoneNumber ?: "",
+                                (user?.firstName + " " + user?.lastName)
+                            )
+                        } else {
+                            callback("", "")
+                        }
+                    }
+
+                    false -> {
+                        Log.e("TAG", "Failed to get user contact details")
+                        callback("", "")
+                    }
+                }
             }
     }
 
@@ -484,7 +469,7 @@ class FirebaseModel {
         breedId: Int,
         description: String,
         imageUri: Uri?,
-        callback: (Boolean) -> Unit
+        callback: (Boolean, String?) -> Unit
     ) {
         if (imageUri != null) {
             val userId = auth.currentUser?.uid
@@ -499,7 +484,7 @@ class FirebaseModel {
                         description,
                         imageUrl
                     ) { isSuccess ->
-                        callback(isSuccess)
+                        callback(isSuccess, imageUrl)
                     }
                 } else {
                     Log.e("TAG", "Image upload failed")
@@ -513,7 +498,7 @@ class FirebaseModel {
                 description,
                 null
             ) { isSuccess ->
-                callback(isSuccess)
+                callback(isSuccess, null)
             }
         }
     }
@@ -525,7 +510,9 @@ class FirebaseModel {
         description: String,
         imageUrl: String?, callback: (Boolean) -> Unit
     ) {
-        val updateMap = Post.getUpdateMap(Post(postId, description, breedId, breedName))
+        val updateMap = Post.getUpdateMap(
+            Post(postId, description, breedId, breedName)
+        )
         if (imageUrl != null) updateMap[Post.IMAGE_KEY] = imageUrl
 
         db.collection(POSTS_COLLECTION_PATH).document(postId)

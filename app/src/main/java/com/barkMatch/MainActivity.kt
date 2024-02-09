@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment: NavHostFragment? =
             supportFragmentManager.findFragmentById(R.id.navHostMain) as? NavHostFragment
         navController = navHostFragment?.navController
-//        navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
 
         FirebaseApp.initializeApp(this)
 

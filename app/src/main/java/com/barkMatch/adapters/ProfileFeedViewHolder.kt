@@ -11,7 +11,6 @@ import com.barkMatch.utils.ImagesUtils
 
 class ProfileFeedViewHolder(
     itemView: View,
-    var posts: List<Post>?
 ) : RecyclerView.ViewHolder(itemView) {
 
     private var ivProfilePostImage: ImageView? = null
